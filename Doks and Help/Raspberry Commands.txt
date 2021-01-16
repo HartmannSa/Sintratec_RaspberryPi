@@ -1,0 +1,23 @@
+# Datum einstellen 'YYYY-MM-DD'
+sudo date --set '2020-04-19 09:30:00'
+
+###########################################################################################################
+Git
+###########################################################################################################
+# Erstellen eines Repos
+mkdir Sintratec
+cd Sintratec
+git init
+
+# Check Status and History
+git status
+git log
+
+# Save current status
+git add --a
+git commit -m "Commit Message"
+
+# Set up Git username local for a single repo
+git config user.name "HartmannSa"			'
+git config user.email 68069890+HartmannSa@users.noreply.github.com	
+
