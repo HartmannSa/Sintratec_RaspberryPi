@@ -10,7 +10,11 @@ class Printer:
         self.z_homed = False
         self.smoothed = True
         self.layer_thickness = cfg.LAYER_THICKNESS
-        self.sledge_position = 10
-        self.powder_bed_position = 0
-        self.workpiece_bed_position = 0
+        self.step_size_x = cfg.STEP_SIZE_X
+        self.step_size_y = cfg.STEP_SIZE_Y
+        self.step_size_y = cfg.STEP_SIZE_Z
+        self.speed = cfg.BED_SPEED_SLOW
+        self.powder_bed_position = 0 #X
+        self.workpiece_bed_position = 0 #Y
+        self.sledge_position = 10 #Z
         self.ready = False

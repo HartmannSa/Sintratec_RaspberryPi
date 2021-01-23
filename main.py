@@ -50,7 +50,7 @@ while True:
 
     printer_gui.readout()
     
-    printer_gui.update_strvars()
+    #printer_gui.update_strvars()
 
     printer_gui.update_idletasks()
     printer_gui.update()

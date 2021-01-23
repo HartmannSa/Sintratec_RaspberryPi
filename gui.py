@@ -9,7 +9,7 @@ class GUI(tk.Frame):
         super().__init__(master)
         self.master = master
         self.prntr = printer
-        master.geometry(str(cfg.GUI_WIDTH)+'x'+str(cfg.GUI_HEIGHT)+'+0+0')
+        master.geometry(str(cfg.GUI_WIDTH)+'x'+str(cfg.GUI_HEIGHT)+'+500+0') # Größe und posiion der Gui von Bildschirmecke unten links
         master.title('GUI for '+printer.name)
         self.create_widgets()
         print('Creating GUI... done')
@@ -31,6 +31,7 @@ class GUI(tk.Frame):
         self.strvar_PowderBedPos.set('Powder bed = '+str(self.prntr.powder_bed_position)+'mm')
         self.strvar_WorkpieceBedPos.set('Workpiece bed = '+str(self.prntr.workpiece_bed_position)+'mm')
         self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')
+        self.strvar_speed.set('Speed = '+str(self.prntr.speed)+'mm/sec')
 
     def create_widgets(self):
         # Frames
@@ -70,6 +71,12 @@ class GUI(tk.Frame):
         self.lbl_sledge_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_SledgePos,bg='white')
         self.lbl_sledge_pos.grid(row=4,column=2,padx=(10,0),pady=(10,0))
         
+        self.strvar_speed = tk.StringVar(value='Speed = '+str(self.prntr.speed)+'mm/sec')
+        #self.strvar_speed.set('Sledge = '+str(self.prntr.sledge_position)+'mm')
+        self.lbl_speed = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_speed,bg='white')
+        self.lbl_speed.grid(row=5,column=2,padx=(10,0),pady=(10,0))
+        
+        
         # Movements
         self.btn_homing = tk.Button(self.lbl_frame_movements,text='Home all axes',width=cfg.BTN_WIDTH,command=self.btn_homing_fnc)
         self.btn_homing.grid(row=1,column=1,padx=(10,0),pady=(10,0))
@@ -104,6 +111,7 @@ class GUI(tk.Frame):
         # Input:
         self.input_entry = tk.Entry(self.lbl_frame_input)
         self.input_entry.pack(side=tk.LEFT,expand='yes',fill='x')
+        self.input_entry.focus()
         tk.Button(self.lbl_frame_input,text='Send',command=self.btn_send_fnc,width=cfg.BTN_WIDTH).pack(side=tk.RIGHT)
         
         # Output:
@@ -227,11 +235,31 @@ class GUI(tk.Frame):
     def write_gui_output_text(self,txt):
         self.output_text.insert(tk.END,txt)
         self.output_text.yview_moveto(1)
+    
+    def process_dataline(self, line):
+        # line enhält Daten im folgenden Format:
+        # pos x | pos y | pos z | step x | step  y | step z | speed
+        data = line.split("|")
+        self.prntr.powder_bed_position = data[0]    # pos X
+        self.prntr.workpiece_bed_position = data[1] # pos Y
+        self.prntr.sledge_position = data[2]        # pos Z
+        self.prntr.step_size_x = data[3]            # step x
+        self.prntr.step_size_y = data[4]            # step y
+        self.prntr.step_size_z = data[5]            # step z
+        self.prntr.speed = data[6]                  # speed
+        self.update_strvars()
+        
+        
 
     def readout(self):
         while(self.prntr.ser.in_waiting > 0):
-            line = self.prntr.ser.readline().decode('utf-8').rstrip()
+            line = self.prntr.ser.readline().decode('utf-8').rstrip()            
             self.write_gui_output_text(line)
+            # Auf eine line mit "ok" folgt eine line mit Positionsdaten, die zu verarbeiten sind
+            if (line =="ok"):
+                # Auslesen und Verarbeiten der nächsten Linie, die Positionsdaten enthält
+                line = self.prntr.ser.readline().decode('utf-8').rstrip()
+                self.process_dataline(line)                                
             sleep(0.01)
         
         
