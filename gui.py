@@ -27,11 +27,14 @@ class GUI(tk.Frame):
                  self.btn_smooth['state']=tk.DISABLED
                  
     def update_strvars(self):
+        self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')
         self.strvar_SledgePos.set('Sledge (Z) = '+str(self.prntr.sledge_position)+'mm')
         self.strvar_PowderBedPos.set('Powder bed (X) = '+str(self.prntr.powder_bed_position)+'mm')
         self.strvar_WorkpieceBedPos.set('Workpiece bed (Y) = '+str(self.prntr.workpiece_bed_position)+'mm')
-        self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')
         self.strvar_speed.set('Speed (F) = '+str(self.prntr.speed)+'mm/sec')
+        self.scale_sledge.set(self.prntr.sledge_position)
+        self.scale_bed1.set(self.prntr.powder_bed_position)
+        self.scale_bed2.set(self.prntr.workpiece_bed_position)
        
     def keybinding_Esc(self, event):
         self.master.destroy()       
@@ -91,6 +94,7 @@ class GUI(tk.Frame):
         # ********************************************************************************************************************************************#
         # Movements                                                                                                                          #
         # ********************************************************************************************************************************************#
+            # Buttons Homing
         self.btn_homing = tk.Button(self.lbl_frame_movements,text='Home all axes',width=cfg.BTN_WIDTH,command=self.btn_homing_fnc)
         self.btn_homing.grid(row=1,column=1,padx=(10,0),pady=(10,0))
         self.btn_homing_x = tk.Button(self.lbl_frame_movements,text='Home x-axis',width=cfg.BTN_WIDTH,command=self.btn_homing_x_fnc)
@@ -99,21 +103,34 @@ class GUI(tk.Frame):
         self.btn_homing_y.grid(row=1,column=3,padx=(10,0),pady=(10,0))
         self.btn_homing_z = tk.Button(self.lbl_frame_movements,text='Home z-axis',width=cfg.BTN_WIDTH,command=self.btn_homing_z_fnc)
         self.btn_homing_z.grid(row=1,column=4,padx=(10,0),pady=(10,0))
+            # Button Smooth Powder
         self.btn_smooth = tk.Button(self.lbl_frame_movements,text='Smooth powder',width=cfg.BTN_WIDTH,command=self.btn_smooth_powder_fnc,state=tk.DISABLED)
         self.btn_smooth.grid(row=2,column=1,padx=(10,0),pady=(10,0))
+            # Button Add Layer
         self.btn_addLayer = tk.Button(self.lbl_frame_movements,text='Add layer',width=cfg.BTN_WIDTH,command=self.btn_apply_powder_fnc,state=tk.DISABLED)
         self.btn_addLayer.grid(row=2,column=2,padx=(10,0),pady=(10,0))
+            # Button Move Beds
         self.btn_moveBeds = tk.Button(self.lbl_frame_movements,text='Move Beds',bg='antique white',width=cfg.BTN_WIDTH,command=self.btn_move_beds_fnc)
-        self.btn_moveBeds.grid(row=2,column=4,padx=(10,0),pady=(10,0))
+        self.btn_moveBeds.grid(row=2,column=3,padx=(10,0),pady=(10,0))
+            # Sledge Position - label, scale
         tk.Label(self.lbl_frame_movements,text='sledge position:\n[mm]',bg='gray70').grid(row=3,column=1)
-        self.scale_sledge = tk.Scale(self.lbl_frame_movements,command=self.scale_sledge_fnc,orient='horizontal', bg='antique white',from_=0,to=cfg.SLEDGE_END_POS,length=380)#,variable=self.prntr.sledge_position)#, label='layer thickness')
+#         self.scale_sledge = tk.Scale(self.lbl_frame_movements,command=self.scale_sledge_fnc ,orient='horizontal', bg='antique white',from_=0,to=cfg.SLEDGE_END_POS,length=380)#,variable=self.prntr.sledge_position)#, label='layer thickness')
+        self.scale_sledge = tk.Scale(self.lbl_frame_movements,orient='horizontal', bg='antique white',from_=0,to=cfg.SLEDGE_END_POS,length=380)#,variable=self.prntr.sledge_position)#, label='layer thickness')
+        self.scale_sledge.bind("<ButtonRelease-1>", self.scale_sledge_fnc)
         self.scale_sledge.grid(row=3,column=2,padx=(10,0),pady=(10,10),columnspan=3)
+            # Powder Bed - label, scale
         tk.Label(self.lbl_frame_movements,text='powder bed\n[mm]',bg='gray70').grid(row=1,column=5,padx=(10,0))
         self.scale_bed1 = tk.Scale(self.lbl_frame_movements, orient='vertical', bg='antique white',from_=125,to=0)
+        self.scale_bed1.bind("<ButtonRelease-1>", self.scale_powder_bed_fnc)
         self.scale_bed1.grid(row=2,column=5,padx=(10,0),pady=(0,0),rowspan=2)
+            # Workpiece bed - label, scale
         tk.Label(self.lbl_frame_movements,text='workpiece bed\n[mm]',bg='gray70').grid(row=1,column=6,padx=(10,0))
         self.scale_bed2 = tk.Scale(self.lbl_frame_movements, orient='vertical', bg='antique white',from_=125,to=0)
+        self.scale_bed2.bind("<ButtonRelease-1>", self.scale_workpiece_bed_fnc)
         self.scale_bed2.grid(row=2,column=6,padx=(10,0),pady=(0,0),rowspan=2)
+            # Button Undo 
+        self.btn_undo = tk.Button(self.lbl_frame_movements,text='Undo',bg='antique white',width=cfg.BTN_WIDTH,command=self.btn_undo_fnc)
+        self.btn_undo.grid(row=2,column=4,padx=(10,0),pady=(10,0))
         
         # ********************************************************************************************************************************************#
         # Heating                                                                                                                          #
@@ -123,7 +140,6 @@ class GUI(tk.Frame):
 #         self.scale_temp2 = tk.Scale(self.lbl_frame_heating, orient='horizontal', bg='sienna1')
 #         self.scale_temp2.place(x='140',y='0')
         
-        
         # ********************************************************************************************************************************************#
         # Input                                                                                                                         #
         # ********************************************************************************************************************************************#
@@ -132,8 +148,7 @@ class GUI(tk.Frame):
         self.input_entry.focus()
         self.input_entry.bind('<Return>', self.btn_send_fnc)
         tk.Button(self.lbl_frame_input,text='Send',command=self.btn_send_fnc,width=cfg.BTN_WIDTH).pack(side=tk.RIGHT)
-        
-        
+                
         # ********************************************************************************************************************************************#
         # Output                                                                                                                         #
         # ********************************************************************************************************************************************#
@@ -147,26 +162,21 @@ class GUI(tk.Frame):
         self.output_text.pack(side=tk.LEFT,fill='both')
         self.scr_bar_vert.config(command=self.output_text.yview)
         self.scr_bar_hori.config(command=self.output_text.xview)
-        
-        
+                
         # ********************************************************************************************************************************************#
         # Start, Pause, Stop Button                                                                                                                          #
         # ********************************************************************************************************************************************#
-        
         # start button:
         self.btn_start = tk.Button(self.master,text='START',command=self.btn_start_fnc,bg='DarkOliveGreen1',state=tk.DISABLED)
         self.btn_start.pack(fill='both', expand='yes',side=tk.LEFT,padx='10',pady='10')
-        
         # pause button:
         self.btn_pause = tk.Button(self.master,text='PAUSE',command=self.btn_pause_fnc,bg='yellow2')
-        self.btn_pause.pack(fill='both', expand='yes',side=tk.LEFT,padx='10',pady='10')
-        
+        self.btn_pause.pack(fill='both', expand='yes',side=tk.LEFT,padx='10',pady='10')      
         # stop button
         self.btn_stop = tk.Button(self.master,text='STOP',command=self.btn_stop_fnc,bg='red')
         self.btn_stop.pack(fill='both', expand='yes',side=tk.RIGHT,padx='10',pady='10')
         
-        
-        
+                
 # **********************************************************************************************
 #                                                                                              *
 #                                 Printer properties - functions                               *
@@ -193,17 +203,17 @@ class GUI(tk.Frame):
 #                                 Movement - functions                                         *
 #                                                                                              *
 # **********************************************************************************************
-    def scale_sledge_fnc(self,var):
-        self.prntr.sledge_position = var
-#         fahre zu jener Position
+    def scale_sledge_fnc(self,var):        
+        self.scale_sledge.configure(bg='red2')
+        self.btn_moveBeds.configure(bg='red2')                 
         
     def scale_powder_bed_fnc(self,var):
-        self.prntr.powder_bed_position = var
-#         fahre zu jener Position
+        self.scale_bed1.configure(bg='red2')
+        self.btn_moveBeds.configure(bg='red2')
         
     def scale_workpiece_bed_fnc(self,var):
-        self.prntr.workpiece_bed_position = var
-#         fahre zu jener Position
+        self.scale_bed2.configure(bg='red2')
+        self.btn_moveBeds.configure(bg='red2')
         
     def btn_homing_fnc(self):
         send(self.prntr.ser,GC_Homing)
@@ -228,20 +238,31 @@ class GUI(tk.Frame):
         self.prntr.sledge_position = 0
         
     def btn_move_beds_fnc(self):
-        write_gui_output_text(self.output_text,'Moving beds...')
+        self.write_gui_output_text('Moving beds...')
         pass
-        write_gui_output_text(self.output_text,'Moving beds finished')
+        self.write_gui_output_text('Moving beds finished')
+        
+    def btn_undo_fnc(self):
+        # set sledge positions back
+        self.scale_sledge.set(self.prntr.sledge_position)
+        self.scale_bed1.set(self.prntr.powder_bed_position)
+        self.scale_bed2.set(self.prntr.workpiece_bed_position)
+        # set color back
+        self.btn_moveBeds.configure(bg='antique white')
+        self.scale_sledge.configure(bg='antique white')
+        self.scale_bed1.configure(bg='antique white')
+        self.scale_bed2.configure(bg='antique white')      
         
     def btn_smooth_powder_fnc(self):
-        write_gui_output_text(self.output_text,'Smoothing powder...')
-#         smooth_powder(self.prntr.ser)
+        self.write_gui_output_text('Smoothing powder...')
+        send(self.prntr.ser,GC_Smooth)
         self.prntr.smoothed = True
-        write_gui_output_text(self.output_text,'Smoothing powder succesfull?')
+        self.write_gui_output_text('Smoothing powder succesfull?')
         
     def btn_apply_powder_fnc(self):
-        write_gui_output_text(self.output_text,'Applying powder...')
-#         apply_powder(self.prntr.ser)
-        write_gui_output_text(self.output_text,'Applying powder finished')
+        self.write_gui_output_text('Applying powder...')
+        send(self.prntr.ser,GC_Layer)
+        self.write_gui_output_text('Applying powder finished')
         # send signal to laser
         
 # **********************************************************************************************

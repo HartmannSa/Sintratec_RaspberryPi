@@ -33,7 +33,7 @@ def main():
     gui_root = tk.Tk()   
     printer = Printer('Sintratec laser printer',ser)
     printer_gui = GUI(printer,master=gui_root)
-    # printer_gui.mainloop()
+#     printer_gui.mainloop()
 
     while True:
         try:
