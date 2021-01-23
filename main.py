@@ -36,25 +36,29 @@ def main():
     # printer_gui.mainloop()
 
     while True:
-        # Add Layer if Laser is triggered
-        pin_state = GPIO.input(pin_laser_connection)
-        # For Pull_Up: Laser is triggerd if button_state == 0
-        if (pin_state==0):
-            sleep(0.5)
-            printer_gui.write_gui_output_text('Signal from Laser received')
-            if printer.homed and printer.smoothed:
-                send(printer.ser, GC_Layer)
-            
-        # Enable Buttons in Gui after Homing and Smoothing
-        if (printer.homed or (printer.x_homed and printer.y_homed and printer.z_homed)) and printer.smoothed:
-            printer_gui.btn_enable("btn_addLayer",True)
-        elif printer.homed:
-            printer_gui.btn_enable("btn_smooth",True)
-
-        printer_gui.readout()       
-        printer_gui.update_idletasks()
-        printer_gui.update()
-
+        try:
+            if (gui_root.state() == 'normal'):
+                # Add Layer if Laser is triggered
+                pin_state = GPIO.input(pin_laser_connection)
+                # For Pull_Up: Laser is triggerd if button_state == 0
+                if (pin_state==0):
+                    sleep(0.5)
+                    printer_gui.write_gui_output_text('Signal from Laser received')
+                    if printer.homed and printer.smoothed:
+                        send(printer.ser, GC_Layer)
+                
+                # Enable Buttons in Gui after Homing and Smoothing
+                if (printer.homed or (printer.x_homed and printer.y_homed and printer.z_homed)) and printer.smoothed:
+                    printer_gui.btn_enable("btn_addLayer",True)
+                elif printer.homed:
+                    printer_gui.btn_enable("btn_smooth",True)
+        
+                printer_gui.readout()       
+                printer_gui.update_idletasks()
+                printer_gui.update()        
+        except Exception:
+            print('Closed Gui -> Stoped Programm')
+            break           
 
 if __name__ == '__main__':
     main()

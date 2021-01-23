@@ -32,10 +32,9 @@ class GUI(tk.Frame):
         self.strvar_WorkpieceBedPos.set('Workpiece bed (Y) = '+str(self.prntr.workpiece_bed_position)+'mm')
         self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')
         self.strvar_speed.set('Speed (F) = '+str(self.prntr.speed)+'mm/sec')
-
        
     def keybinding_Esc(self, event):
-        self.master.destroy()
+        self.master.destroy()       
         
     def create_widgets(self):
         self.master.bind('<Key-Escape>', self.keybinding_Esc)
