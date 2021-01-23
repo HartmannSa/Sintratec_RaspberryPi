@@ -27,13 +27,19 @@ class GUI(tk.Frame):
                  self.btn_smooth['state']=tk.DISABLED
                  
     def update_strvars(self):
-        self.strvar_SledgePos.set('Sledge = '+str(self.prntr.sledge_position)+'mm')
-        self.strvar_PowderBedPos.set('Powder bed = '+str(self.prntr.powder_bed_position)+'mm')
-        self.strvar_WorkpieceBedPos.set('Workpiece bed = '+str(self.prntr.workpiece_bed_position)+'mm')
+        self.strvar_SledgePos.set('Sledge (Z) = '+str(self.prntr.sledge_position)+'mm')
+        self.strvar_PowderBedPos.set('Powder bed (X) = '+str(self.prntr.powder_bed_position)+'mm')
+        self.strvar_WorkpieceBedPos.set('Workpiece bed (Y) = '+str(self.prntr.workpiece_bed_position)+'mm')
         self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')
-        self.strvar_speed.set('Speed = '+str(self.prntr.speed)+'mm/sec')
+        self.strvar_speed.set('Speed (F) = '+str(self.prntr.speed)+'mm/sec')
 
+       
+    def keybinding_Esc(self, event):
+        self.master.destroy()
+        
     def create_widgets(self):
+        self.master.bind('<Key-Escape>', self.keybinding_Esc)
+        
         # Frames
         self.lbl_frame_properties = tk.LabelFrame(self.master, bg='white', text = 'Printer properties',height=str(cfg.FRAME_HEIGHT))
         self.lbl_frame_properties.pack(fill='both',expand='yes',side=tk.TOP)
@@ -107,12 +113,14 @@ class GUI(tk.Frame):
 #         self.scale_temp1.place(x='0',y='0')
 #         self.scale_temp2 = tk.Scale(self.lbl_frame_heating, orient='horizontal', bg='sienna1')
 #         self.scale_temp2.place(x='140',y='0')
-
+        
         # Input:
         self.input_entry = tk.Entry(self.lbl_frame_input)
         self.input_entry.pack(side=tk.LEFT,expand='yes',fill='x')
         self.input_entry.focus()
+        self.input_entry.bind('<Return>', self.btn_send_fnc)
         tk.Button(self.lbl_frame_input,text='Send',command=self.btn_send_fnc,width=cfg.BTN_WIDTH).pack(side=tk.RIGHT)
+        
         
         # Output:
         self.scr_bar_vert = tk.Scrollbar(self.lbl_frame_output)
@@ -221,7 +229,7 @@ class GUI(tk.Frame):
 #                                 Input console - functions                                    *
 #                                                                                              *
 # **********************************************************************************************
-    def btn_send_fnc(self):
+    def btn_send_fnc(self, event=None):
         strval=str(self.input_entry.get())
         send(self.prntr.ser,strval+'\n')
         self.input_entry.delete(0,'end')
@@ -248,8 +256,7 @@ class GUI(tk.Frame):
         self.prntr.step_size_z = data[5]            # step z
         self.prntr.speed = data[6]                  # speed
         self.update_strvars()
-        
-        
+              
 
     def readout(self):
         while(self.prntr.ser.in_waiting > 0):
