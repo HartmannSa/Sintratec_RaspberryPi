@@ -9,7 +9,7 @@ class GUI(tk.Frame):
         super().__init__(master)
         self.master = master
         self.prntr = printer
-        master.geometry(str(cfg.GUI_WIDTH)+'x'+str(cfg.GUI_HEIGHT)+'+500+0') # Größe und posiion der Gui von Bildschirmecke unten links
+        master.geometry(str(cfg.GUI_WIDTH)+'x'+str(cfg.GUI_HEIGHT)+'+1100+0') # Größe und posiion der Gui von Bildschirmecke unten links
         master.title('GUI for '+printer.name)
         self.create_widgets()
         print('Creating GUI... done')
@@ -51,38 +51,46 @@ class GUI(tk.Frame):
         self.lbl_frame_output = tk.LabelFrame(self.master, bg='white', text = 'Output',height=str((cfg.FRAME_HEIGHT)*2))
         self.lbl_frame_output.pack(fill='both', expand='yes',side=tk.TOP)
         
-        # Printer properties
+        # ********************************************************************************************************************************************#
+        # Printer properties                                                                                                                          #
+        # ********************************************************************************************************************************************#
+        
+        # Layer Thickness
+            # Label "layer thickness"
         tk.Label(self.lbl_frame_properties,text='layer thickness:',bg='white').grid(row=1,column=1,padx=(10,0),pady=(10,0))
+            # Label output "0.002mm"
         self.strvar_LT = tk.StringVar()
-#         self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')
         self.lbl_layer_thickness = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_LT,bg='white')
         self.lbl_layer_thickness.grid(row=2,column=1,padx=(10,0),pady=(10,0))
+            # Entry
         self.lt_entry = tk.Entry(self.lbl_frame_properties,width=cfg.BTN_WIDTH)
         self.lt_entry.grid(row=3,column=1,pady=(10,0))
+        self.lt_entry.bind('<Return>', self.btn_set_layer_thickness )
+            # Apply Button
         tk.Button(self.lbl_frame_properties,text='Apply',command=self.btn_set_layer_thickness,width=cfg.BTN_WIDTH-2).grid(row=4,column=1,pady=(10,0))
+        
+        # EndstopStatus
         self.btn_endstop = tk.Button(self.lbl_frame_properties,text='Endstop status',width=cfg.BTN_WIDTH,command=self.btn_endstops_fnc)
         self.btn_endstop.grid(row=5,column=1,pady=(10,0))
+        
+        # Positions
         tk.Label(self.lbl_frame_properties,text='Positions:',bg='white').grid(row=1,column=2,padx=(10,0),pady=(10,0))
         self.strvar_PowderBedPos = tk.StringVar()
-#         self.strvar_PowderBedPos.set('Powder bed = '+str(self.prntr.powder_bed_position)+'mm')
         self.lbl_powder_bed_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_PowderBedPos,bg='white')
         self.lbl_powder_bed_pos.grid(row=2,column=2,padx=(10,0),pady=(10,0))
         self.strvar_WorkpieceBedPos = tk.StringVar()
-#         self.strvar_WorkpieceBedPos.set('Workpiece bed = '+str(self.prntr.workpiece_bed_position)+'mm')
         self.lbl_workpiece_bed_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_WorkpieceBedPos,bg='white')
         self.lbl_workpiece_bed_pos.grid(row=3,column=2,padx=(10,0),pady=(10,0))
         self.strvar_SledgePos = tk.StringVar()
-#         self.strvar_SledgePos.set('Sledge = '+str(self.prntr.sledge_position)+'mm')
         self.lbl_sledge_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_SledgePos,bg='white')
         self.lbl_sledge_pos.grid(row=4,column=2,padx=(10,0),pady=(10,0))
-        
         self.strvar_speed = tk.StringVar(value='Speed = '+str(self.prntr.speed)+'mm/sec')
-        #self.strvar_speed.set('Sledge = '+str(self.prntr.sledge_position)+'mm')
         self.lbl_speed = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_speed,bg='white')
         self.lbl_speed.grid(row=5,column=2,padx=(10,0),pady=(10,0))
         
-        
-        # Movements
+        # ********************************************************************************************************************************************#
+        # Movements                                                                                                                          #
+        # ********************************************************************************************************************************************#
         self.btn_homing = tk.Button(self.lbl_frame_movements,text='Home all axes',width=cfg.BTN_WIDTH,command=self.btn_homing_fnc)
         self.btn_homing.grid(row=1,column=1,padx=(10,0),pady=(10,0))
         self.btn_homing_x = tk.Button(self.lbl_frame_movements,text='Home x-axis',width=cfg.BTN_WIDTH,command=self.btn_homing_x_fnc)
@@ -107,13 +115,18 @@ class GUI(tk.Frame):
         self.scale_bed2 = tk.Scale(self.lbl_frame_movements, orient='vertical', bg='antique white',from_=125,to=0)
         self.scale_bed2.grid(row=2,column=6,padx=(10,0),pady=(0,0),rowspan=2)
         
-        # Heating
+        # ********************************************************************************************************************************************#
+        # Heating                                                                                                                          #
+        # ********************************************************************************************************************************************#
 #         self.scale_temp1 = tk.Scale(self.lbl_frame_heating, orient='horizontal', bg='sienna1')
 #         self.scale_temp1.place(x='0',y='0')
 #         self.scale_temp2 = tk.Scale(self.lbl_frame_heating, orient='horizontal', bg='sienna1')
 #         self.scale_temp2.place(x='140',y='0')
         
-        # Input:
+        
+        # ********************************************************************************************************************************************#
+        # Input                                                                                                                         #
+        # ********************************************************************************************************************************************#
         self.input_entry = tk.Entry(self.lbl_frame_input)
         self.input_entry.pack(side=tk.LEFT,expand='yes',fill='x')
         self.input_entry.focus()
@@ -121,7 +134,9 @@ class GUI(tk.Frame):
         tk.Button(self.lbl_frame_input,text='Send',command=self.btn_send_fnc,width=cfg.BTN_WIDTH).pack(side=tk.RIGHT)
         
         
-        # Output:
+        # ********************************************************************************************************************************************#
+        # Output                                                                                                                         #
+        # ********************************************************************************************************************************************#
         self.scr_bar_vert = tk.Scrollbar(self.lbl_frame_output)
         self.scr_bar_vert.pack(side=tk.RIGHT,fill='y')
         self.scr_bar_hori = tk.Scrollbar(self.lbl_frame_output,orient=tk.HORIZONTAL)
@@ -132,6 +147,11 @@ class GUI(tk.Frame):
         self.output_text.pack(side=tk.LEFT,fill='both')
         self.scr_bar_vert.config(command=self.output_text.yview)
         self.scr_bar_hori.config(command=self.output_text.xview)
+        
+        
+        # ********************************************************************************************************************************************#
+        # Start, Pause, Stop Button                                                                                                                          #
+        # ********************************************************************************************************************************************#
         
         # start button:
         self.btn_start = tk.Button(self.master,text='START',command=self.btn_start_fnc,bg='DarkOliveGreen1',state=tk.DISABLED)
@@ -152,11 +172,12 @@ class GUI(tk.Frame):
 #                                 Printer properties - functions                               *
 #                                                                                              *
 # **********************************************************************************************
-    def btn_set_layer_thickness(self):
+    def btn_set_layer_thickness(self, event=None):
         strval=str(self.lt_entry.get())
         floatval=float(self.lt_entry.get())
         if (floatval <= cfg.LAYER_THICKNESS_MAX) & (floatval > 0):
             self.prntr.layer_thickness = floatval
+            self.update_strvars()
             self.lt_entry.delete(0,'end')
             self.write_gui_output_text('Changed layer thickness to '+strval+'mm')
         else:
