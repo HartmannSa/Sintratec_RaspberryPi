@@ -28,7 +28,16 @@ GC_Macro6 = 'M815 G90'\
                '|G0 Z'+str(cfg.SLEDGE_END_POS)+' F'+str(cfg.SLEDGE_SPEED_SLOW)+\
                '|G0 X'+str(-cfg.LAYER_THICKNESS)+' Y'+str(-cfg.LAYER_THICKNESS)+' F'+str(cfg.BED_SPEED_SLOW)+\
                '|G0 Z'+str(-(cfg.SLEDGE_END_POS-cfg.SLEDGE_MID_POS))+' F'+str(cfg.SLEDGE_SPEED_FAST)+\
-               '|G0 Y'+str(cfg.LAYER_THICKNESS)+' F'+str(cfg.BED_SPEED_SLOW)+'\n' 
+               '|G0 Y'+str(cfg.LAYER_THICKNESS)+' F'+str(cfg.BED_SPEED_SLOW)+'\n'
+
+# Variables Makro "Move Beds"
+# G90
+def GC_Move(x,y,z,f=cfg.BED_SPEED_SLOW):
+    return 'G0'\
+           ' X'+str(x)+\
+           ' Y'+str(y)+\
+           ' Z'+str(z)+\
+           ' F'+str(f)+'\n' 
 
 # Executable G-Code
 GC_Endstops = 'M119\n'
@@ -38,4 +47,5 @@ GC_Home_Y = 'M812\n'
 GC_Home_Z = 'M813\n'
 GC_Smooth = 'M814\n'
 GC_Layer  = 'M815\n'
+
 

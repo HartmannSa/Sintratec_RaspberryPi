@@ -239,8 +239,16 @@ class GUI(tk.Frame):
         
     def btn_move_beds_fnc(self):
         self.write_gui_output_text('Moving beds...')
-        pass
-        self.write_gui_output_text('Moving beds finished')
+        x = self.scale_bed1.get()
+        y = self.scale_bed2.get()
+        z = self.scale_sledge.get()
+        send(self.prntr.ser,'G90\n')
+#         self.write_gui_output_text(GC_Move(x,y,z))
+        send(self.prntr.ser,GC_Move(x,y,z))
+        self.btn_moveBeds.configure(bg='antique white')
+        self.scale_sledge.configure(bg='antique white')
+        self.scale_bed1.configure(bg='antique white')
+        self.scale_bed2.configure(bg='antique white')
         
     def btn_undo_fnc(self):
         # set sledge positions back
@@ -296,8 +304,7 @@ class GUI(tk.Frame):
         self.prntr.step_size_y = data[4]            # step y
         self.prntr.step_size_z = data[5]            # step z
         self.prntr.speed = data[6]                  # speed
-        self.update_strvars()
-              
+        self.update_strvars()              
 
     def readout(self):
         while(self.prntr.ser.in_waiting > 0):

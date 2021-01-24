@@ -16,5 +16,5 @@ class Printer:
         self.speed = cfg.BED_SPEED_SLOW
         self.powder_bed_position = 0 #X
         self.workpiece_bed_position = 0 #Y
-        self.sledge_position = 10 #Z
+        self.sledge_position = 0 #Z
         self.ready = False
