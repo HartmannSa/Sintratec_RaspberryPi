@@ -28,10 +28,10 @@ class GUI(tk.Frame):
                  
     def update_strvars(self):
         self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')
-        self.strvar_SledgePos.set('Sledge (Z) = '+str(self.prntr.sledge_position)+'mm')
-        self.strvar_PowderBedPos.set('Powder bed (X) = '+str(self.prntr.powder_bed_position)+'mm')
-        self.strvar_WorkpieceBedPos.set('Workpiece bed (Y) = '+str(self.prntr.workpiece_bed_position)+'mm')
-        self.strvar_speed.set('Speed (F) = '+str(self.prntr.speed)+'mm/sec')
+        self.strvar_SledgePos.set(str(self.prntr.sledge_position)+'mm')
+        self.strvar_PowderBedPos.set(str(self.prntr.powder_bed_position)+'mm')
+        self.strvar_WorkpieceBedPos.set(str(self.prntr.workpiece_bed_position)+'mm')
+        self.strvar_speed.set(str(self.prntr.speed)+'mm/s')
         self.scale_sledge.set(self.prntr.sledge_position)
         self.scale_bed1.set(self.prntr.powder_bed_position)
         self.scale_bed2.set(self.prntr.workpiece_bed_position)
@@ -60,9 +60,10 @@ class GUI(tk.Frame):
         
         # Layer Thickness
             # Label "layer thickness"
-        tk.Label(self.lbl_frame_properties,text='layer thickness:',bg='white').grid(row=1,column=1,padx=(10,0),pady=(10,0))
+        tk.Label(self.lbl_frame_properties,text='Layer Thickness:',bg='white').grid(row=1,column=1,padx=(10,0),pady=(10,0))
             # Label output "0.002mm"
         self.strvar_LT = tk.StringVar()
+        self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')
         self.lbl_layer_thickness = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_LT,bg='white')
         self.lbl_layer_thickness.grid(row=2,column=1,padx=(10,0),pady=(10,0))
             # Entry
@@ -72,24 +73,46 @@ class GUI(tk.Frame):
             # Apply Button
         tk.Button(self.lbl_frame_properties,text='Apply',command=self.btn_set_layer_thickness,width=cfg.BTN_WIDTH-2).grid(row=4,column=1,pady=(10,0))
         
+        # default Speed
+            # Label "default Speed"
+        tk.Label(self.lbl_frame_properties,text='default Speed:',bg='white').grid(row=1,column=2,padx=(10,0),pady=(10,0))
+            # Label output "100mm/s"
+        self.strvar_speed = tk.StringVar()
+        self.strvar_speed.set(str(self.prntr.speed)+'mm/s')
+        self.lbl_defaultSpeed = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_speed,bg='white')
+        self.lbl_defaultSpeed.grid(row=2,column=2,padx=(10,0),pady=(10,0))
+            # Entry
+        self.defaultSpeed_entry = tk.Entry(self.lbl_frame_properties,width=cfg.BTN_WIDTH)
+        self.defaultSpeed_entry.grid(row=3,column=2,pady=(10,0))
+        self.defaultSpeed_entry.bind('<Return>', self.btn_set_default_speed )
+            # Apply Button
+        tk.Button(self.lbl_frame_properties,text='Apply',command=self.btn_set_default_speed,width=cfg.BTN_WIDTH-2).grid(row=4,column=2,pady=(10,0))
+        
         # EndstopStatus
         self.btn_endstop = tk.Button(self.lbl_frame_properties,text='Endstop status',width=cfg.BTN_WIDTH,command=self.btn_endstops_fnc)
-        self.btn_endstop.grid(row=5,column=1,pady=(10,0))
+        self.btn_endstop.grid(row=1,column=5,pady=(10,0))
         
         # Positions
-        tk.Label(self.lbl_frame_properties,text='Positions:',bg='white').grid(row=1,column=2,padx=(10,0),pady=(10,0))
+        tk.Label(self.lbl_frame_properties,text='Positions & Speed:',bg='white').grid(row=1,column=3,padx=(10,0),pady=(10,0),columnspan=2)
+        tk.Label(self.lbl_frame_properties,text='Powder bed (X) = ',bg='white').grid(row=2,column=3,padx=(0,0),pady=(10,0),sticky='E')
         self.strvar_PowderBedPos = tk.StringVar()
+        self.strvar_PowderBedPos.set(str(self.prntr.powder_bed_position)+'mm')
         self.lbl_powder_bed_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_PowderBedPos,bg='white')
-        self.lbl_powder_bed_pos.grid(row=2,column=2,padx=(10,0),pady=(10,0))
+        self.lbl_powder_bed_pos.grid(row=2,column=4,padx=(10,0),pady=(10,0),sticky='W')
+        tk.Label(self.lbl_frame_properties,text='Workpiece bed (Y) = ',bg='white').grid(row=3,column=3,padx=(0,0),pady=(10,0),sticky='E')
         self.strvar_WorkpieceBedPos = tk.StringVar()
+        self.strvar_WorkpieceBedPos.set(str(self.prntr.workpiece_bed_position)+'mm')
         self.lbl_workpiece_bed_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_WorkpieceBedPos,bg='white')
-        self.lbl_workpiece_bed_pos.grid(row=3,column=2,padx=(10,0),pady=(10,0))
+        self.lbl_workpiece_bed_pos.grid(row=3,column=4,padx=(10,0),pady=(10,0),sticky='W')
+        tk.Label(self.lbl_frame_properties,text='Sledge (Z) = ',bg='white').grid(row=4,column=3,padx=(0,0),pady=(10,0),sticky='E')
         self.strvar_SledgePos = tk.StringVar()
+        self.strvar_SledgePos.set(str(self.prntr.sledge_position)+'mm')
         self.lbl_sledge_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_SledgePos,bg='white')
-        self.lbl_sledge_pos.grid(row=4,column=2,padx=(10,0),pady=(10,0))
-        self.strvar_speed = tk.StringVar(value='Speed = '+str(self.prntr.speed)+'mm/sec')
+        self.lbl_sledge_pos.grid(row=4,column=4,padx=(10,0),pady=(10,0),sticky='W')
+        tk.Label(self.lbl_frame_properties,text='Speed (F) = ',bg='white').grid(row=5,column=3,padx=(0,0),pady=(10,0),sticky='E')
+#         self.strvar_speed = tk.StringVar()
         self.lbl_speed = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_speed,bg='white')
-        self.lbl_speed.grid(row=5,column=2,padx=(10,0),pady=(10,0))
+        self.lbl_speed.grid(row=5,column=4,padx=(10,0),pady=(10,0),sticky='W')
         
         # ********************************************************************************************************************************************#
         # Movements                                                                                                                          #
@@ -192,8 +215,20 @@ class GUI(tk.Frame):
             self.write_gui_output_text('Changed layer thickness to '+strval+'mm')
         else:
             self.lt_entry.delete(0,'end')
-            self.write_gui_output_text('Maximum '+str(cfg.LAYER_THICKNESS_MAX)+'mm allowed')
+            self.write_gui_output_text('MAXIMUM '+str(cfg.LAYER_THICKNESS_MAX)+'mm allowed')
             
+    def btn_set_default_speed(self, event=None):
+        strval=str(self.defaultSpeed_entry.get())
+        floatval=float(self.defaultSpeed_entry.get())
+        if (floatval <= cfg.BED_SPEED_FAST) & (floatval >= cfg.BED_SPEED_SLOW):
+            self.prntr.speed = floatval
+            self.update_strvars()
+            self.defaultSpeed_entry.delete(0,'end')
+            send(self.prntr.ser,'G0F'+strval)
+        else:
+            self.defaultSpeed_entry.delete(0,'end')
+            self.write_gui_output_text('MAXIMUM '+str(cfg.BED_SPEED_FAST)+'mm/s and MINIMUM '+str(cfg.BED_SPEED_SLOW)+'mm/s')
+
     def btn_endstops_fnc(self):
         send(self.prntr.ser,GC_Endstops)
             

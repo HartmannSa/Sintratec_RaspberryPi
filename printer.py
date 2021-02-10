@@ -13,7 +13,7 @@ class Printer:
         self.step_size_x = cfg.STEP_SIZE_X
         self.step_size_y = cfg.STEP_SIZE_Y
         self.step_size_y = cfg.STEP_SIZE_Z
-        self.speed = cfg.BED_SPEED_SLOW
+        self.speed = 111
         self.powder_bed_position = 0 #X
         self.workpiece_bed_position = 0 #Y
         self.sledge_position = 0 #Z
