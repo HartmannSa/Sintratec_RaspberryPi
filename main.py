@@ -33,7 +33,7 @@ def main():
     gui_root = tk.Tk()   
     printer = Printer('Sintratec laser printer',ser)
     printer_gui = GUI(printer,master=gui_root)
-#     printer_gui.mainloop()
+    send(ser,'G100X'+str(printer.bed_speed)+'Y'+str(printer.bed_speed)+'Z'+str(printer.sledge_speed))     
 
     while True:
         try:

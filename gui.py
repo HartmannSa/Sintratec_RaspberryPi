@@ -31,7 +31,8 @@ class GUI(tk.Frame):
         self.strvar_SledgePos.set(str(self.prntr.sledge_position)+'mm')
         self.strvar_PowderBedPos.set(str(self.prntr.powder_bed_position)+'mm')
         self.strvar_WorkpieceBedPos.set(str(self.prntr.workpiece_bed_position)+'mm')
-        self.strvar_speed.set(str(self.prntr.speed)+'mm/s')
+        self.strvar_bed_speed.set(str(self.prntr.bed_speed)+'mm/s')
+        self.strvar_sledge_speed.set(str(self.prntr.sledge_speed)+'mm/s')
         self.scale_sledge.set(self.prntr.sledge_position)
         self.scale_bed1.set(self.prntr.powder_bed_position)
         self.scale_bed2.set(self.prntr.workpiece_bed_position)
@@ -73,46 +74,61 @@ class GUI(tk.Frame):
             # Apply Button
         tk.Button(self.lbl_frame_properties,text='Apply',command=self.btn_set_layer_thickness,width=cfg.BTN_WIDTH-2).grid(row=4,column=1,pady=(10,0))
         
-        # default Speed
-            # Label "default Speed"
-        tk.Label(self.lbl_frame_properties,text='default Speed:',bg='white').grid(row=1,column=2,padx=(10,0),pady=(10,0))
+        # Bed Speed
+            # Label "Bed Speed"
+        tk.Label(self.lbl_frame_properties,text='Bed Speed:',bg='white').grid(row=1,column=2,padx=(10,0),pady=(10,0))
             # Label output "100mm/s"
-        self.strvar_speed = tk.StringVar()
-        self.strvar_speed.set(str(self.prntr.speed)+'mm/s')
-        self.lbl_defaultSpeed = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_speed,bg='white')
-        self.lbl_defaultSpeed.grid(row=2,column=2,padx=(10,0),pady=(10,0))
+        self.strvar_bed_speed = tk.StringVar()
+        self.strvar_bed_speed.set(str(self.prntr.bed_speed)+'mm/s')
+        self.lbl_bed_speed = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_bed_speed,bg='white')
+        self.lbl_bed_speed.grid(row=2,column=2,padx=(10,0),pady=(10,0))
             # Entry
-        self.defaultSpeed_entry = tk.Entry(self.lbl_frame_properties,width=cfg.BTN_WIDTH)
-        self.defaultSpeed_entry.grid(row=3,column=2,pady=(10,0))
-        self.defaultSpeed_entry.bind('<Return>', self.btn_set_default_speed )
+        self.bed_speed_entry = tk.Entry(self.lbl_frame_properties,width=cfg.BTN_WIDTH)
+        self.bed_speed_entry.grid(row=3,column=2,pady=(10,0))
+        self.bed_speed_entry.bind('<Return>', self.btn_set_bed_speed )
             # Apply Button
-        tk.Button(self.lbl_frame_properties,text='Apply',command=self.btn_set_default_speed,width=cfg.BTN_WIDTH-2).grid(row=4,column=2,pady=(10,0))
-        
-        # EndstopStatus
-        self.btn_endstop = tk.Button(self.lbl_frame_properties,text='Endstop status',width=cfg.BTN_WIDTH,command=self.btn_endstops_fnc)
-        self.btn_endstop.grid(row=1,column=5,pady=(10,0))
+        tk.Button(self.lbl_frame_properties,text='Apply',command=self.btn_set_bed_speed,width=cfg.BTN_WIDTH-2).grid(row=4,column=2,pady=(10,0))
+         
+        # Sledge Speed
+            # Label "Sledge Speed"
+        tk.Label(self.lbl_frame_properties,text='Sledge Speed:',bg='white').grid(row=1,column=3,padx=(10,0),pady=(10,0))
+            # Label output "100mm/s"
+        self.strvar_sledge_speed = tk.StringVar()
+        self.strvar_sledge_speed.set(str(self.prntr.sledge_speed)+'mm/s')
+        self.lbl_sledge_speed = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_sledge_speed,bg='white')
+        self.lbl_sledge_speed.grid(row=2,column=3,padx=(10,0),pady=(10,0))
+            # Entry
+        self.sledge_speed_entry = tk.Entry(self.lbl_frame_properties,width=cfg.BTN_WIDTH)
+        self.sledge_speed_entry.grid(row=3,column=3,pady=(10,0))
+        self.sledge_speed_entry.bind('<Return>', self.btn_set_sledge_speed )
+            # Apply Button
+        tk.Button(self.lbl_frame_properties,text='Apply',command=self.btn_set_sledge_speed,width=cfg.BTN_WIDTH-2).grid(row=4,column=3,pady=(10,0)) 
         
         # Positions
-        tk.Label(self.lbl_frame_properties,text='Positions & Speed:',bg='white').grid(row=1,column=3,padx=(10,0),pady=(10,0),columnspan=2)
-        tk.Label(self.lbl_frame_properties,text='Powder bed (X) = ',bg='white').grid(row=2,column=3,padx=(0,0),pady=(10,0),sticky='E')
+        tk.Label(self.lbl_frame_properties,text='Positions:',bg='white').grid(row=1,column=4,padx=(10,0),pady=(10,0),columnspan=2)
+        tk.Label(self.lbl_frame_properties,text='Powder bed (X) = ',bg='white').grid(row=2,column=4,padx=(0,0),pady=(10,0),sticky='E')
         self.strvar_PowderBedPos = tk.StringVar()
         self.strvar_PowderBedPos.set(str(self.prntr.powder_bed_position)+'mm')
         self.lbl_powder_bed_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_PowderBedPos,bg='white')
-        self.lbl_powder_bed_pos.grid(row=2,column=4,padx=(10,0),pady=(10,0),sticky='W')
-        tk.Label(self.lbl_frame_properties,text='Workpiece bed (Y) = ',bg='white').grid(row=3,column=3,padx=(0,0),pady=(10,0),sticky='E')
+        self.lbl_powder_bed_pos.grid(row=2,column=5,padx=(10,0),pady=(10,0),sticky='W')
+        tk.Label(self.lbl_frame_properties,text='Workpiece bed (Y) = ',bg='white').grid(row=3,column=4,padx=(0,0),pady=(10,0),sticky='E')
         self.strvar_WorkpieceBedPos = tk.StringVar()
         self.strvar_WorkpieceBedPos.set(str(self.prntr.workpiece_bed_position)+'mm')
         self.lbl_workpiece_bed_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_WorkpieceBedPos,bg='white')
-        self.lbl_workpiece_bed_pos.grid(row=3,column=4,padx=(10,0),pady=(10,0),sticky='W')
-        tk.Label(self.lbl_frame_properties,text='Sledge (Z) = ',bg='white').grid(row=4,column=3,padx=(0,0),pady=(10,0),sticky='E')
+        self.lbl_workpiece_bed_pos.grid(row=3,column=5,padx=(10,0),pady=(10,0),sticky='W')
+        tk.Label(self.lbl_frame_properties,text='Sledge (Z) = ',bg='white').grid(row=4,column=4,padx=(0,0),pady=(10,0),sticky='E')
         self.strvar_SledgePos = tk.StringVar()
         self.strvar_SledgePos.set(str(self.prntr.sledge_position)+'mm')
         self.lbl_sledge_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_SledgePos,bg='white')
-        self.lbl_sledge_pos.grid(row=4,column=4,padx=(10,0),pady=(10,0),sticky='W')
-        tk.Label(self.lbl_frame_properties,text='Speed (F) = ',bg='white').grid(row=5,column=3,padx=(0,0),pady=(10,0),sticky='E')
-#         self.strvar_speed = tk.StringVar()
-        self.lbl_speed = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_speed,bg='white')
-        self.lbl_speed.grid(row=5,column=4,padx=(10,0),pady=(10,0),sticky='W')
+        self.lbl_sledge_pos.grid(row=4,column=5,padx=(10,0),pady=(10,0),sticky='W')
+#         tk.Label(self.lbl_frame_properties,text='Speed (F) = ',bg='white').grid(row=5,column=4,padx=(0,0),pady=(10,0),sticky='E')
+#         self.strvar_bed_speed = tk.StringVar()
+#         self.lbl_speed = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_bed_speed,bg='white')
+#         self.lbl_speed.grid(row=5,column=5,padx=(10,0),pady=(10,0),sticky='W')
+
+        # EndstopStatus
+        self.btn_endstop = tk.Button(self.lbl_frame_properties,text='Endstop status',width=cfg.BTN_WIDTH,command=self.btn_endstops_fnc)
+        self.btn_endstop.grid(row=1,column=6,pady=(10,0))
         
         # ********************************************************************************************************************************************#
         # Movements                                                                                                                          #
@@ -133,7 +149,7 @@ class GUI(tk.Frame):
         self.btn_addLayer = tk.Button(self.lbl_frame_movements,text='Add layer',width=cfg.BTN_WIDTH,command=self.btn_apply_powder_fnc,state=tk.DISABLED)
         self.btn_addLayer.grid(row=2,column=2,padx=(10,0),pady=(10,0))
             # Button Move Beds
-        self.btn_moveBeds = tk.Button(self.lbl_frame_movements,text='Move Beds',bg='antique white',width=cfg.BTN_WIDTH,command=self.btn_move_beds_fnc)
+        self.btn_moveBeds = tk.Button(self.lbl_frame_movements,text='Move',bg='antique white',width=cfg.BTN_WIDTH,command=self.btn_move_beds_fnc)
         self.btn_moveBeds.grid(row=2,column=3,padx=(10,0),pady=(10,0))
             # Sledge Position - label, scale
         tk.Label(self.lbl_frame_movements,text='sledge position:\n[mm]',bg='gray70').grid(row=3,column=1)
@@ -217,17 +233,29 @@ class GUI(tk.Frame):
             self.lt_entry.delete(0,'end')
             self.write_gui_output_text('MAXIMUM '+str(cfg.LAYER_THICKNESS_MAX)+'mm allowed')
             
-    def btn_set_default_speed(self, event=None):
-        strval=str(self.defaultSpeed_entry.get())
-        floatval=float(self.defaultSpeed_entry.get())
+    def btn_set_bed_speed(self, event=None):
+        strval=str(self.bed_speed_entry.get())
+        floatval=float(self.bed_speed_entry.get())
         if (floatval <= cfg.BED_SPEED_FAST) & (floatval >= cfg.BED_SPEED_SLOW):
-            self.prntr.speed = floatval
+            self.prntr.bed_speed = floatval
             self.update_strvars()
-            self.defaultSpeed_entry.delete(0,'end')
-            send(self.prntr.ser,'G0F'+strval)
+            self.bed_speed_entry.delete(0,'end')
+            send(self.prntr.ser,'G100X'+strval+'Y'+strval)
         else:
-            self.defaultSpeed_entry.delete(0,'end')
-            self.write_gui_output_text('MAXIMUM '+str(cfg.BED_SPEED_FAST)+'mm/s and MINIMUM '+str(cfg.BED_SPEED_SLOW)+'mm/s')
+            self.bed_speed_entry.delete(0,'end')
+            self.write_gui_output_text('MINIMUM '+str(cfg.BED_SPEED_SLOW)+'mm/s and MAXIMUM '+str(cfg.BED_SPEED_FAST)+'mm/s')
+            
+    def btn_set_sledge_speed(self, event=None):
+        strval=str(self.sledge_speed_entry.get())
+        floatval=float(self.sledge_speed_entry.get())
+        if (floatval <= cfg.SLEDGE_SPEED_FAST) & (floatval >= cfg.SLEDGE_SPEED_SLOW):
+            self.prntr.sledge_speed = floatval
+            self.update_strvars()
+            self.sledge_speed_entry.delete(0,'end')
+            send(self.prntr.ser,'G100Z'+strval)
+        else:
+            self.sledge_speed_entry.delete(0,'end')
+            self.write_gui_output_text('MINIMUM '+str(cfg.SLEDGE_SPEED_SLOW)+'mm/s and MAXIMUM '+str(cfg.SLEDGE_SPEED_FAST)+'mm/s')
 
     def btn_endstops_fnc(self):
         send(self.prntr.ser,GC_Endstops)
@@ -273,12 +301,11 @@ class GUI(tk.Frame):
         self.prntr.sledge_position = 0
         
     def btn_move_beds_fnc(self):
-        self.write_gui_output_text('Moving beds...')
+        self.write_gui_output_text('Moving steppers...')
         x = self.scale_bed1.get()
         y = self.scale_bed2.get()
         z = self.scale_sledge.get()
-        send(self.prntr.ser,'G90\n')
-#         self.write_gui_output_text(GC_Move(x,y,z))
+#         send(self.prntr.ser,'G90\n')
         send(self.prntr.ser,GC_Move(x,y,z))
         self.btn_moveBeds.configure(bg='antique white')
         self.scale_sledge.configure(bg='antique white')
@@ -330,7 +357,7 @@ class GUI(tk.Frame):
     
     def process_dataline(self, line):
         # line enhält Daten im folgenden Format:
-        # pos x | pos y | pos z | step x | step  y | step z | speed
+        # pos x | pos y | pos z | step x | step  y | step z | speed x | speed y | speed z
         data = line.split("|")
         self.prntr.powder_bed_position = data[0]    # pos X
         self.prntr.workpiece_bed_position = data[1] # pos Y
@@ -338,7 +365,8 @@ class GUI(tk.Frame):
         self.prntr.step_size_x = data[3]            # step x
         self.prntr.step_size_y = data[4]            # step y
         self.prntr.step_size_z = data[5]            # step z
-        self.prntr.speed = data[6]                  # speed
+        self.prntr.bed_speed = data[6]              # speed x
+        self.prntr.sledge_speed = data[8]           # speed z
         self.update_strvars()              
 
     def readout(self):
