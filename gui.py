@@ -15,7 +15,6 @@ class GUI(tk.Frame):
         self.create_widgets()
         print('Creating GUI... done')
         self.process_paused = False
-        self.process_started = False
         
     def btn_enable(self,btn_name,btn_var):
          if btn_name == 'btn_addLayer':
@@ -419,7 +418,7 @@ class GUI(tk.Frame):
 # **********************************************************************************************
     def btn_start_fnc(self):
         self.write_gui_output_text('PRINTING PROCESS STARTED',False)
-        self.process_started = True
+        self.prntr.ready = True
         
     def btn_pause_fnc(self):
         send(self.prntr.ser,'pause\n')

@@ -6,6 +6,7 @@ from time import sleep
 from gui import *
 from printer import *
 from functions import *
+import gcode
     
 def main():
     # Set the serial communication port from Arduino
@@ -17,7 +18,7 @@ def main():
     print('Arduino connected and ready!')
 
     # Setup Pin for add-layer-signal
-    pin_laser_connection = 23
+    pin_laser_connection = 23 # ein Kabel in Pin-No. 16, das andere in Pin-No. 14
     GPIO.setmode(GPIO.BCM) 
     GPIO.setup(pin_laser_connection,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 
@@ -29,7 +30,6 @@ def main():
     send(ser,'G100X'+str(printer.bed_speed)+'Y'+str(printer.bed_speed)+'Z'+str(printer.sledge_speed)+ '\n')
     
     msg_homed_shown = False
-    msg_smoothed_shown = False
     while True:
         try:
             if (gui_root.state() == 'normal'):
@@ -45,7 +45,21 @@ def main():
                     printer_gui.btn_enable("btn_addLayer",True)
                     printer_gui.btn_enable("btn_start",True)
 
-                
+                # Add Layer if Laser is triggered
+                pin_state = GPIO.input(pin_laser_connection)
+                # For Pull_Up: Laser is triggerd if button_state == 0
+                if (pin_state==0):
+                    sleep(0.5)
+                    printer_gui.write_gui_output_text('Signal from Laser received',False)
+                    if printer.ready:
+                        if printer.homed and printer.smoothed:
+                            printer_gui.write_gui_output_text('Adding layer...',False)
+                            send(printer.ser, gcode.GC_Layer(printer))
+                            # HIER WARTEN BIS LAYERAUFTRAGUNG FERTIG, DANN SIGNAL AN LASER SENDEN
+                        else:
+                            printer_gui.write_gui_output_text('Layer was not added: Printer is not homed or powder is not smoothed!',False)
+                    else:
+                        printer_gui.write_gui_output_text('Signal from Laser was ignored, because printing process was not started yet',False)
 
                 printer_gui.readout()       
                 printer_gui.update_idletasks()
