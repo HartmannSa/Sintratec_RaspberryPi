@@ -1,5 +1,6 @@
 import config as cfg
 import tkinter as tk
+import RPi.GPIO as GPIO
 from gcode import *
 from time import sleep
 from functions import *
@@ -46,6 +47,46 @@ class GUI(tk.Frame):
         self.scale_sledge.set(self.prntr.sledge_position)
         self.scale_bed1.set(self.prntr.powder_bed_position)
         self.scale_bed2.set(self.prntr.workpiece_bed_position)
+ 
+    def process_dataline(self, line):
+        # line enhält Daten im folgenden Format:
+        # pos x | pos y | pos z | step x | step  y | step z | speed x | speed y | speed z
+        try:
+            data = line.split('|')
+            self.prntr.powder_bed_position = data[0]    # pos X
+            self.prntr.workpiece_bed_position = data[1] # pos Y
+            self.prntr.sledge_position = data[2]        # pos Z
+            self.prntr.step_size_x = data[3]            # step x
+            self.prntr.step_size_y = data[4]            # step y
+            self.prntr.step_size_z = data[5]            # step z
+            self.prntr.bed_speed = data[6]              # speed x
+            self.prntr.sledge_speed = data[8]           # speed z
+            self.update_strvars()
+        except Exception:
+            self.write_gui_output_text('Failed to process dataline: ' + str(line),False)
+            
+    def readout(self):
+        while(self.prntr.ser.in_waiting > 0): # Solange Lines im Buffer sind
+            line = self.prntr.ser.readline().decode('utf-8').rstrip()  # Line wird aus dem Puffer in Variable line geschoben          
+            if ('|' in line):
+                # Auslesen und Verarbeiten der nächsten Linie, die Positionsdaten enthält
+                self.process_dataline(line)
+            else:
+                self.write_gui_output_text(line,True)
+            if (line == 'Homing x-axis done'):
+                self.prntr.x_homed = True
+            if (line == 'Homing y-axis done'):
+                self.prntr.y_homed = True
+            if (line == 'Homing z-axis done'):
+                self.prntr.z_homed = True
+            if ("macro 4 done" in line):
+                self.showInfoAfterSmoothed()
+            if ("macro 5 done" in line) and self.prntr.ready_to_send_signal_back:
+                self.prntr.ready_to_send_signal_back = False
+                GPIO.output(cfg.pin_laser_output,True)
+                sleep(cfg.time_output_signal)
+                GPIO.output(cfg.pin_laser_output,False)
+            sleep(0.01)
        
     def keybinding_Esc(self, event):
         self.master.destroy()       
@@ -131,14 +172,14 @@ class GUI(tk.Frame):
         self.strvar_SledgePos.set(str(self.prntr.sledge_position)+'mm')
         self.lbl_sledge_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_SledgePos,bg=cfg.lblFrame_PrinterProperties_color)
         self.lbl_sledge_pos.grid(row=4,column=5,padx=(10,0),pady=(10,0),sticky='W')
-#         tk.Label(self.lbl_frame_properties,text='Speed (F) = ',bg='white').grid(row=5,column=4,padx=(0,0),pady=(10,0),sticky='E')
-#         self.strvar_bed_speed = tk.StringVar()
-#         self.lbl_speed = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_bed_speed,bg='white')
-#         self.lbl_speed.grid(row=5,column=5,padx=(10,0),pady=(10,0),sticky='W')
 
         # EndstopStatus
         self.btn_endstop = tk.Button(self.lbl_frame_properties,text='Endstop status',width=cfg.BTN_WIDTH,command=self.btn_endstops_fnc)
         self.btn_endstop.grid(row=1,column=6,pady=(10,0))
+        
+        # Macros
+        self.btn_macros = tk.Button(self.lbl_frame_properties,text='Macros',width=cfg.BTN_WIDTH_SMALL,command=self.btn_macros_fnc)
+        self.btn_macros.grid(row=1,column=7,padx=(10,0),pady=(10,0))
         
         # Step sizes
         tk.Label(self.lbl_frame_properties,text='x-steps/mm = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=2,column=6,padx=(0,0),pady=(10,0),sticky='E')
@@ -286,6 +327,26 @@ class GUI(tk.Frame):
 
     def btn_endstops_fnc(self):
         send(self.prntr.ser,GC_Endstops)
+        
+    def btn_macros_fnc(self):
+        self.write_gui_output_text('Macro 0 (Homing all axes):',False)
+        temp = GC_Homing(self.prntr)
+        self.write_gui_output_text('      '+temp[0:temp.index('\n')],False)
+        self.write_gui_output_text('Macro 1 (Homing X axis):',False)
+        temp = GC_Home_X(self.prntr)
+        self.write_gui_output_text('      '+temp[0:temp.index('\n')],False)
+        self.write_gui_output_text('Macro 2 (Homing Y axis):',False)
+        temp = GC_Home_Y(self.prntr)
+        self.write_gui_output_text('      '+temp[0:temp.index('\n')],False)
+        self.write_gui_output_text('Macro 3 (Homing Z axis):',False)
+        temp = GC_Home_Z(self.prntr)
+        self.write_gui_output_text('      '+temp[0:temp.index('\n')],False)
+        self.write_gui_output_text('Macro 4 (Smoothing powder):',False)
+        temp = GC_Smooth(self.prntr)
+        self.write_gui_output_text('      '+temp[0:temp.index('\n')],False)
+        self.write_gui_output_text('Macro 5 (Adding layer):',False)
+        temp = GC_Layer(self.prntr)
+        self.write_gui_output_text('      '+temp[0:temp.index('\n')],False)
             
             
 # **********************************************************************************************
@@ -348,9 +409,6 @@ class GUI(tk.Frame):
         
     def btn_apply_powder_fnc(self):
         send(self.prntr.ser,GC_Layer(self.prntr))
-        # send signal to laser!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         
 # **********************************************************************************************
 #                                                                                              *
@@ -373,44 +431,7 @@ class GUI(tk.Frame):
         if from_arduino:
             self.output_text.itemconfig(tk.END,{'fg':cfg.arduino_msg_color})
         self.output_text.yview_moveto(1)
-    
-    def process_dataline(self, line):
-        # line enhält Daten im folgenden Format:
-        # pos x | pos y | pos z | step x | step  y | step z | speed x | speed y | speed z
-        try:
-            data = line.split('|')
-            self.prntr.powder_bed_position = data[0]    # pos X
-            self.prntr.workpiece_bed_position = data[1] # pos Y
-            self.prntr.sledge_position = data[2]        # pos Z
-            self.prntr.step_size_x = data[3]            # step x
-            self.prntr.step_size_y = data[4]            # step y
-            self.prntr.step_size_z = data[5]            # step z
-            self.prntr.bed_speed = data[6]              # speed x
-            self.prntr.sledge_speed = data[8]           # speed z
-            self.update_strvars()
-        except Exception:
-            self.write_gui_output_text('Failed to process dataline: ' + str(line),False)
-            
-
-    def readout(self):
-        while(self.prntr.ser.in_waiting > 0): # Solange Lines im Buffer sind
-            line = self.prntr.ser.readline().decode('utf-8').rstrip()  # Line wird aus dem Puffer in Variable line geschoben          
-            if ('|' in line):
-                # Auslesen und Verarbeiten der nächsten Linie, die Positionsdaten enthält
-                self.process_dataline(line)
-            else:
-                self.write_gui_output_text(line,True)
-            if (line == 'Homing x-axis done'):
-                self.prntr.x_homed = True
-            if (line == 'Homing y-axis done'):
-                self.prntr.y_homed = True
-            if (line == 'Homing z-axis done'):
-                self.prntr.z_homed = True
-            if ("macro 4 done" in line):
-                self.showInfoAfterSmoothed()
-            sleep(0.01)
-        
-        
+   
 # **********************************************************************************************
 #                                                                                              *
 #                                 Start, pause & stop - functions                              *
@@ -424,12 +445,15 @@ class GUI(tk.Frame):
         send(self.prntr.ser,'pause\n')
         if self.process_paused:
             self.process_paused = False
+            self.prntr.ready = True
             self.btn_pause['text'] = 'PAUSE'
         else:
             self.process_paused = True
+            self.prntr.ready = False
             self.btn_pause['text'] = 'CONTINUE'
         
     def btn_stop_fnc(self):
+        self.prntr.ready = False
         send(self.prntr.ser,'stop\n')
         
 # **********************************************************************************************

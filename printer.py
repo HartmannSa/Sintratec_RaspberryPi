@@ -19,3 +19,4 @@ class Printer:
         self.workpiece_bed_position = 0 #Y
         self.sledge_position = 0 #Z
         self.ready = False
+        self.ready_to_send_signal_back = False

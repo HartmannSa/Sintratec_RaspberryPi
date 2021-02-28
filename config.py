@@ -26,7 +26,8 @@ LAYER_SMOOTHING_THICKNESS = 5 # [mm]
 BAUDRATE = 250000
 
 # GUI
-BTN_WIDTH = 10 # Button width used for every button except start, pause and stop
+BTN_WIDTH = 10 # default Button width
+BTN_WIDTH_SMALL = 5 # default Button width
 FRAME_HEIGHT = 200
 GUI_WIDTH = 760
 GUI_HEIGHT = 1000
@@ -43,3 +44,10 @@ pauseButton_color = 'yellow2'
 stopButton_color = 'red'
 scaleChanged_color = 'red2'
 arduino_msg_color = 'light sea green'
+
+# Laser controller communication
+# duration for how long a voltage of 3.3V is sent to the laser controller,
+# as soon as the layer was added:
+time_output_signal = 0.5 #sec
+pin_laser_input = 23 # ein Kabel in Pin-No. 16, das andere in Pin-No. 14
+pin_laser_output = 17 # ein Kabel in Pin-No. 11, das andere in Pin-No. 9
