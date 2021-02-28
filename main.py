@@ -38,7 +38,7 @@ def main():
                     printer.homed = True
                 if (printer.homed):
                     if not msg_homed_shown:
-                        printer_gui.showInfoAfterHomed()
+                        # printer_gui.showInfoAfterHomed() # just for laser-debugging
                         msg_homed_shown = True
                     printer_gui.btn_enable("btn_smooth",True)                    
                 if (printer.homed and printer.smoothed):

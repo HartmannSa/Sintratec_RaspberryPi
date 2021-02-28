@@ -11,7 +11,8 @@ class GUI(tk.Frame):
         super().__init__(master)
         self.master = master
         self.prntr = printer
-        master.geometry(str(cfg.GUI_WIDTH)+'x'+str(cfg.GUI_HEIGHT)+'+1100+0') # Größe und posiion der Gui von Bildschirmecke unten links
+        master.geometry(str(cfg.GUI_WIDTH)+'x'+str(cfg.GUI_HEIGHT)+'+'+str(cfg.GUI_POS_X)+'+'+str(cfg.GUI_POS_Y))
+        # Größe&Posiion der Gui von Bildschirmecke unten links im Format: BreitexHöhe+PosX+PosY
         master.title('GUI for '+printer.name)
         self.create_widgets()
         print('Creating GUI... done')
@@ -79,8 +80,8 @@ class GUI(tk.Frame):
                 self.prntr.y_homed = True
             if (line == 'Homing z-axis done'):
                 self.prntr.z_homed = True
-            if ("macro 4 done" in line):
-                self.showInfoAfterSmoothed()
+            # ("macro 4 done" in line): # commented out just for laser-debug case
+                #self.showInfoAfterSmoothed() # commented out just for laser-debug case
             if ("macro 5 done" in line) and self.prntr.ready_to_send_signal_back:
                 self.prntr.ready_to_send_signal_back = False
                 GPIO.output(cfg.pin_laser_output,True)

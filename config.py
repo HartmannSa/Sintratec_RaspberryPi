@@ -16,8 +16,8 @@ SLEDGE_SPEED_SLOW  = 100     # [mm/s]
 SLEDGE_SPEED_FAST  = 120     # [mm/s] 
 
 # Printer properties
-LAYER_THICKNESS = 0.05       # [mm]
-LAYER_THICKNESS_MAX = 1     # [mm]
+LAYER_THICKNESS = 1       # [mm] default 0.05
+LAYER_THICKNESS_MAX = 10     # [mm]
 LAYER_SMOOTHING_THICKNESS = 5 # [mm]
 # POWDER_FILL_HEIGHT = 100      # [mm]
 
@@ -29,8 +29,10 @@ BAUDRATE = 250000
 BTN_WIDTH = 10 # default Button width
 BTN_WIDTH_SMALL = 5 # default Button width
 FRAME_HEIGHT = 200
-GUI_WIDTH = 760
-GUI_HEIGHT = 1000
+GUI_WIDTH = 1275
+GUI_HEIGHT = 990
+GUI_POS_X = 1 # Position der Gui von linkerer unterer Bildschirmecke aus
+GUI_POS_Y = 1 # Position der Gui von linkerer unterer Bildschirmecke aus
 
 # GUI colors
 lblFrame_PrinterProperties_color = 'gray'
