@@ -69,7 +69,7 @@ def GC_Smooth (printer):
 
 def GC_Layer (printer):
     return 'M815 G90'\
-           '|' + GC_setSpeed(-1,cfg.SLEDGE_SPEED_FAST)+\
+           '|' + GC_setSpeed(-1,cfg.SLEDGE_SPEED_SLOW)+\
            '|G0 Z0'\
            '|G91'\
            '|' + GC_setSpeed(cfg.BED_SPEED_SLOW,-1)+\

@@ -15,13 +15,12 @@ def main():
     sleep(2)
     print('Arduino connected and ready!')
 
-    # Setup Pin for receiving signal from laser:
+    # Setup Pins for receiving and sending signal to RTC Board:
     GPIO.setmode(GPIO.BCM) # Broadcom pin-numbering scheme
     GPIO.setwarnings(False)
-    GPIO.setup(cfg.pin_laser_input,GPIO.IN,pull_up_down=GPIO.PUD_UP)
-    # Setup Pin for sending a signal to laser:
-    GPIO.setup(cfg.pin_laser_output,GPIO.OUT)
-    GPIO.output(cfg.pin_laser_output,0)
+    GPIO.setup(cfg.pin_laser_input,GPIO.IN,pull_up_down=GPIO.PUD_UP) # for receiving
+    GPIO.setup(cfg.pin_laser_output,GPIO.OUT) # for sending
+    GPIO.output(cfg.pin_laser_output,GPIO.LOW)
 
     # define the printer and the printer GUI properties
     gui_root = tk.Tk()   
@@ -38,7 +37,7 @@ def main():
                     printer.homed = True
                 if (printer.homed):
                     if not msg_homed_shown:
-                        # printer_gui.showInfoAfterHomed() # just for laser-debugging
+                        printer_gui.showInfoAfterHomed()
                         msg_homed_shown = True
                     printer_gui.btn_enable("btn_smooth",True)                    
                 if (printer.homed and printer.smoothed):
@@ -47,11 +46,10 @@ def main():
 
                 # Add Layer if Laser is triggered
                 pin_state_input = GPIO.input(cfg.pin_laser_input)
-                # For Pull_Up: Laser is triggerd if button_state == 0
+	        # RTC Digital Output Pin 15 is set to High equals pin_input = 1
                 if (pin_state_input==0):
-                    sleep(0.5)
-                    printer_gui.write_gui_output_text('Signal from Laser received',False)
-                    if printer.homed and printer.smoothed:
+                    
+                    hed:
                         if printer.ready:
                             if not printer.ready_to_send_signal_back:
                                 printer_gui.write_gui_output_text('Adding layer...',False)

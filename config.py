@@ -5,14 +5,14 @@
 
 # Movements
 # POWDER_BED_MAX_HEIGHT = 125  # [mm]
-SLEDGE_END_POS = 280         # [mm]
+SLEDGE_END_POS = 273         # [mm] Hit Endstop at 275
 SLEDGE_MID_POS = 118         # [mm]
 STEP_SIZE_X = 1600           # [mm/s]
 STEP_SIZE_Y = 1600           # [mm/s]
 STEP_SIZE_Z = 32             # [mm/s]
-BED_SPEED_SLOW = 3           # [mm/s]
+BED_SPEED_SLOW = 2           # [mm/s]
 BED_SPEED_FAST = 10          # [mm/s]
-SLEDGE_SPEED_SLOW  = 100     # [mm/s]
+SLEDGE_SPEED_SLOW  = 20     # [mm/s]
 SLEDGE_SPEED_FAST  = 120     # [mm/s] 
 
 # Printer properties
@@ -51,5 +51,5 @@ arduino_msg_color = 'light sea green'
 # duration for how long a voltage of 3.3V is sent to the laser controller,
 # as soon as the layer was added:
 time_output_signal = 0.5 #sec
-pin_laser_input = 23 # ein Kabel in Pin-No. 16, das andere in Pin-No. 14
-pin_laser_output = 17 # ein Kabel in Pin-No. 11, das andere in Pin-No. 9
+pin_laser_input = 12 # 
+pin_laser_output = 13 # 

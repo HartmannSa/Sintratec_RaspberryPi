@@ -80,8 +80,8 @@ class GUI(tk.Frame):
                 self.prntr.y_homed = True
             if (line == 'Homing z-axis done'):
                 self.prntr.z_homed = True
-            # ("macro 4 done" in line): # commented out just for laser-debug case
-                #self.showInfoAfterSmoothed() # commented out just for laser-debug case
+            if ("macro 4 done" in line): 
+                self.showInfoAfterSmoothed() 
             if ("macro 5 done" in line) and self.prntr.ready_to_send_signal_back:
                 self.prntr.ready_to_send_signal_back = False
                 GPIO.output(cfg.pin_laser_output,True)
