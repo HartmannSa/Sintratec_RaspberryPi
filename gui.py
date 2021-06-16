@@ -36,10 +36,11 @@ class GUI(tk.Frame):
                  self.btn_start['state']=tk.DISABLED
                  
     def update_strvars(self):
-        self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')
-        self.strvar_SledgePos.set(str(self.prntr.sledge_position)+'mm')
-        self.strvar_PowderBedPos.set(str(self.prntr.powder_bed_position)+'mm')
-        self.strvar_WorkpieceBedPos.set(str(self.prntr.workpiece_bed_position)+'mm')
+        self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')        
+        self.strvar_sledge_step.set(str(self.prntr.sledge_step)+' mm')
+#         self.strvar_SledgePos.set(str(self.prntr.sledge_position)+'mm')
+#         self.strvar_PowderBedPos.set(str(self.prntr.powder_bed_position)+'mm')
+#         self.strvar_WorkpieceBedPos.set(str(self.prntr.workpiece_bed_position)+'mm')
         self.strvar_bed_speed.set(str(self.prntr.bed_speed)+'mm/s')
         self.strvar_sledge_speed.set(str(self.prntr.sledge_speed)+'mm/s')
         self.strvar_xsteps.set(str(self.prntr.step_size_x))
@@ -51,7 +52,7 @@ class GUI(tk.Frame):
  
     def process_dataline(self, line):
         # line enhält Daten im folgenden Format:
-        # pos x | pos y | pos z | step x | step  y | step z | speed x | speed y | speed z
+        # pos x | pos y | pos z | step x | step y | step z | speed x | speed y | speed z
         try:
             data = line.split('|')
             self.prntr.powder_bed_position = data[0]    # pos X
@@ -96,10 +97,24 @@ class GUI(tk.Frame):
         self.master.bind('<Key-Escape>', self.keybinding_Esc)
         
         # Frames
-        self.lbl_frame_properties = tk.LabelFrame(self.master, bg=cfg.lblFrame_PrinterProperties_color, text = 'Printer properties',height=str(cfg.FRAME_HEIGHT))
-        self.lbl_frame_properties.pack(fill='both',expand='yes',side=tk.TOP)
-        self.lbl_frame_movements = tk.LabelFrame(self.master, bg=cfg.lblFrame_Movements_color, text = 'Movements',height=str(cfg.FRAME_HEIGHT))
-        self.lbl_frame_movements.pack(fill='both',expand='yes',side=tk.TOP)
+        self.lbl_frame_first = tk.LabelFrame(self.master, bd=0, bg=cfg.lblFrame_First_color,height=str(cfg.FRAME_HEIGHT))
+        self.lbl_frame_first.pack(fill='both',expand='yes',side=tk.TOP)
+        self.lbl_frame_general = tk.LabelFrame(self.lbl_frame_first, bg=cfg.lblFrame_First_color, text = 'General',height=str(cfg.FRAME_HEIGHT))
+        self.lbl_frame_general.pack(fill='both',expand='yes',side=tk.LEFT)
+        self.lbl_frame_homing = tk.LabelFrame(self.lbl_frame_first, bg=cfg.lblFrame_First_color, text = 'Homing',height=str(cfg.FRAME_HEIGHT))
+        self.lbl_frame_homing.pack(fill='both',expand='yes',side=tk.LEFT)
+        
+        self.lbl_frame_second = tk.LabelFrame(self.master, bg=cfg.lblFrame_Movements_color, text = 'Movements and Macros',height=str(cfg.FRAME_HEIGHT))
+        self.lbl_frame_second.pack(fill='both',expand='yes',side=tk.TOP)
+        self.lbl_frame_movements = tk.LabelFrame(self.lbl_frame_second,bd=0, bg=cfg.lblFrame_Movements_color,height=str(cfg.FRAME_HEIGHT))
+        self.lbl_frame_movements.pack(fill='both',expand='yes',side=tk.LEFT)
+        self.lbl_frame_macros = tk.LabelFrame(self.lbl_frame_second,bd=0, bg=cfg.lblFrame_Movements_color,height=str(cfg.FRAME_HEIGHT))
+        self.lbl_frame_macros.pack(fill='both',expand='yes',side=tk.LEFT)
+        
+#         self.lbl_frame_movements = tk.LabelFrame(self.master, bg=cfg.lblFrame_Movements_color, text = 'Movements',height=str(cfg.FRAME_HEIGHT))
+#         self.lbl_frame_movements.pack(fill='both',expand='yes',side=tk.TOP)
+#         self.lbl_frame_properties = tk.LabelFrame(self.master, bg=cfg.lblFrame_PrinterProperties_color, text = 'Printer properties',height=str(cfg.FRAME_HEIGHT))
+#         self.lbl_frame_properties.pack(fill='both',expand='yes',side=tk.TOP)
         self.lbl_frame_heating = tk.LabelFrame(self.master, bg=cfg.lblFrame_Heating_color, text = 'Heating',height=str(cfg.FRAME_HEIGHT))
         self.lbl_frame_heating.pack(expand='yes',fill='both',side=tk.TOP)
         self.lbl_frame_input = tk.LabelFrame(self.master, bg=cfg.lblFrame_Input_color, text = 'Input',height=str(10))
@@ -107,139 +122,192 @@ class GUI(tk.Frame):
         self.lbl_frame_output = tk.LabelFrame(self.master, bg=cfg.lblFrame_Output_color, text = 'Output',height=str((cfg.FRAME_HEIGHT)*2))
         self.lbl_frame_output.pack(fill='both', expand='yes',side=tk.TOP)
         
+        
+        
+        # ********************************************************************************************************************************************#
+        # General                                                                                                                        #
+        # ********************************************************************************************************************************************# 
+        # EndstopStatus
+        self.btn_endstop = tk.Button(self.lbl_frame_general,text='Endstop status',command=self.btn_endstops_fnc)
+        self.btn_endstop.grid(row=1,column=1,padx=(0,0), pady=(10,0))
+        
+        # Macros
+        self.btn_macros = tk.Button(self.lbl_frame_general,text='Macros',width=cfg.BTN_WIDTH,command=self.btn_macros_fnc)
+        self.btn_macros.grid(row=1,column=2,padx=(10,0),pady=(10,0), columnspan=2)
+        
+        # Step sizes
+        tk.Label(self.lbl_frame_general,text='Stepsizes [steps/mm]:',bg=cfg.lblFrame_First_color).grid(row=2,column=1,padx=(10,0),pady=(10,0))
+        tk.Label(self.lbl_frame_general,text='Bed (x) = ',bg=cfg.lblFrame_First_color).grid(row=2,column=2,padx=(cfg.pad_x,0),pady=(10,0),sticky='E')
+        self.strvar_xsteps = tk.StringVar()
+        self.strvar_xsteps.set(str(self.prntr.step_size_x))
+        self.lbl_xsteps = tk.Label(self.lbl_frame_general,textvariable=self.strvar_xsteps,bg=cfg.lblFrame_First_color)
+        self.lbl_xsteps.grid(row=2,column=3,padx=(0,0),pady=(10,0),sticky='W')
+        
+        tk.Label(self.lbl_frame_general,text='Bed (y) = ',bg=cfg.lblFrame_First_color).grid(row=2,column=4,padx=(cfg.pad_x,0),pady=(10,0),sticky='E')
+        self.strvar_ysteps = tk.StringVar()
+        self.strvar_ysteps.set(str(self.prntr.step_size_y))
+        self.lbl_ysteps = tk.Label(self.lbl_frame_general,textvariable=self.strvar_ysteps,bg=cfg.lblFrame_First_color)
+        self.lbl_ysteps.grid(row=2,column=5,padx=(0,0),pady=(10,0),sticky='W')
+        
+        tk.Label(self.lbl_frame_general,text='Sledge (z) = ',bg=cfg.lblFrame_First_color).grid(row=2,column=6,padx=(cfg.pad_x,0),pady=(10,0),sticky='E')
+        self.strvar_zsteps = tk.StringVar()
+        self.strvar_zsteps.set(str(self.prntr.step_size_z))
+        self.lbl_zsteps = tk.Label(self.lbl_frame_general,textvariable=self.strvar_zsteps,bg=cfg.lblFrame_First_color)
+        self.lbl_zsteps.grid(row=2,column=7,padx=(0,0),pady=(10,0),sticky='W')
+        
+        # ********************************************************************************************************************************************#
+        # Homing                                                                                                                          #
+        # ********************************************************************************************************************************************#
+        # Buttons Homing
+        self.btn_homing = tk.Button(self.lbl_frame_homing,text='Home all axes',width=cfg.BTN_WIDTH+5,command=self.btn_homing_fnc)
+        self.btn_homing.grid(row=1,column=1,padx=(10,0),pady=(10,0))
+        self.btn_homing_x = tk.Button(self.lbl_frame_homing,text='Home x-axis',width=cfg.BTN_WIDTH,command=self.btn_homing_x_fnc)
+        self.btn_homing_x.grid(row=1,column=2,padx=(10,0),pady=(10,0))
+        self.btn_homing_y = tk.Button(self.lbl_frame_homing,text='Home y-axis',width=cfg.BTN_WIDTH,command=self.btn_homing_y_fnc)
+        self.btn_homing_y.grid(row=1,column=3,padx=(10,0),pady=(10,0))
+        self.btn_homing_z = tk.Button(self.lbl_frame_homing,text='Home z-axis',width=cfg.BTN_WIDTH,command=self.btn_homing_z_fnc)
+        self.btn_homing_z.grid(row=1,column=4,padx=(10,0),pady=(10,0))
+        
+        tk.Label(self.lbl_frame_homing,text='Homing Speed [mm/s]:',bg=cfg.lblFrame_First_color).grid(row=2,column=1,padx=(10,0),pady=(10,0))
+        tk.Label(self.lbl_frame_homing,text= cfg.HOMING_SPEED_BED ,bg=cfg.lblFrame_First_color).grid(row=2,column=2,padx=(10,0),pady=(10,0))
+        tk.Label(self.lbl_frame_homing,text= cfg.HOMING_SPEED_BED ,bg=cfg.lblFrame_First_color).grid(row=2,column=3,padx=(10,0),pady=(10,0))
+        tk.Label(self.lbl_frame_homing,text= cfg.HOMING_SPEED_SLEDGE,bg=cfg.lblFrame_First_color).grid(row=2,column=4,padx=(10,0),pady=(10,0))
+        
+        # ********************************************************************************************************************************************#
+        # Movements                                                                                                                          #
+        # ********************************************************************************************************************************************#
+            # Button Move Beds
+        self.btn_moveBeds = tk.Button(self.lbl_frame_movements,text='Move',width=25, bg=cfg.moveBeds_color,command=self.btn_move_beds_fnc)
+        self.btn_moveBeds.grid(row=1,column=1,padx=(10,0),pady=(10,0), columnspan=2)
+            # Button Undo 
+        self.btn_undo = tk.Button(self.lbl_frame_movements,text='Undo',width=25, bg=cfg.moveBeds_color,command=self.btn_undo_fnc)
+        self.btn_undo.grid(row=1,column=3,padx=(10,0),pady=(10,0), columnspan=2)
+        
+            # Sledge Position - label, scale
+        tk.Label(self.lbl_frame_movements,text='sledge position:\n[mm]',bg=cfg.lblFrame_Movements_color).grid(row=2,column=1,padx=(10,0),pady=(10,0))
+            # Button Steps
+        self.btn_sledge_left = tk.Button(self.lbl_frame_movements,text='<',bg=cfg.moveBeds_color,width=10,command=self.btn_step_sledge_left_fnc)
+        self.btn_sledge_left.grid(row=2,column=2,padx=(10,0),pady=(10,0))
+        self.btn_sledge_right = tk.Button(self.lbl_frame_movements,text='>',bg=cfg.moveBeds_color,width=10,command=self.btn_step_sledge_right_fnc)
+        self.btn_sledge_right.grid(row=2,column=3,padx=(0,0),pady=(10,0))
+            # Label output "10mm"
+        self.strvar_sledge_step = tk.StringVar()
+        self.strvar_sledge_step.set(str(self.prntr.sledge_step)+' mm')
+        self.lbl_sledge_step = tk.Label(self.lbl_frame_movements,textvariable=self.strvar_sledge_step,bg=cfg.lblFrame_Movements_color)
+        self.lbl_sledge_step.grid(row=2,column=4,padx=(10,0),pady=(10,0))
+            # Entry
+        self.sledge_step_entry = tk.Entry(self.lbl_frame_movements,width=cfg.BTN_WIDTH)
+        self.sledge_step_entry.grid(row=2,column=5,pady=(10,0))
+        self.sledge_step_entry.bind('<Return>', self.btn_set_sledge_step )
+            # Apply Button
+        tk.Button(self.lbl_frame_movements,text='Apply',command=self.btn_set_sledge_step,width=5).grid(row=2,column=6,pady=(10,0)) 
+            # Sledge scale
+        self.scale_sledge = tk.Scale(self.lbl_frame_movements,orient='horizontal', bg=cfg.moveBeds_color,from_=cfg.SLEDGE_MAX_POS,to=0,length=250)#, variable=self.prntr.sledge_position)#, label='layer thickness')
+        self.scale_sledge.bind("<ButtonRelease-1>", self.scale_sledge_fnc)
+        self.scale_sledge.grid(row=3,column=2,padx=(10,0),pady=(10,10),columnspan=2)
+            
+            # Workpiece bed - label, scale
+        tk.Label(self.lbl_frame_movements,text='workpiece bed\n[mm]',bg=cfg.lblFrame_Movements_color).grid(row=4,column=1,padx=(10,0))
+        self.scale_bed2 = tk.Scale(self.lbl_frame_movements, orient='vertical', bg=cfg.moveBeds_color,from_=cfg.BED_MAX_POS,to=0)
+        self.scale_bed2.bind("<ButtonRelease-1>", self.scale_workpiece_bed_fnc)
+        self.scale_bed2.grid(row=4,column=2,padx=(10,0),pady=(0,0),rowspan=2, sticky='W')
+            # Powder Bed - label, scale
+        self.scale_bed1 = tk.Scale(self.lbl_frame_movements, orient='vertical', bg=cfg.moveBeds_color,from_=cfg.BED_MAX_POS,to=0)
+        self.scale_bed1.bind("<ButtonRelease-1>", self.scale_powder_bed_fnc)
+        self.scale_bed1.grid(row=4,column=3,padx=(0,0),pady=(0,0),rowspan=2)
+        tk.Label(self.lbl_frame_movements,text='powder bed\n[mm]',bg=cfg.lblFrame_Movements_color).grid(row=4,column=4,padx=(0,0), sticky='E')
+
+        # ********************************************************************************************************************************************#
+        # Macros                                                                                                                          #
+        # ********************************************************************************************************************************************#
+            # Label "Sledge Speed"
+        tk.Label(self.lbl_frame_macros,text='Sledge Speed[mm/s]:',bg=cfg.lblFrame_Movements_color).grid(row=1,column=2,padx=(10,0), pady=(10,0))
+            # Label output "100mm/s"
+        self.strvar_sledge_speed = tk.StringVar()
+        self.strvar_sledge_speed.set(str(self.prntr.sledge_speed)+'mm/s')
+        self.lbl_sledge_speed = tk.Label(self.lbl_frame_macros,textvariable=self.strvar_sledge_speed,bg=cfg.lblFrame_Movements_color)
+        self.lbl_sledge_speed.grid(row=1,column=3,padx=(10,0),pady=(10,0))
+            # Entry
+        self.sledge_speed_entry = tk.Entry(self.lbl_frame_macros,width=cfg.BTN_WIDTH)
+        self.sledge_speed_entry.grid(row=1,column=4,pady=(10,0))
+        self.sledge_speed_entry.bind('<Return>', self.btn_set_sledge_speed )
+            # Apply Button
+        tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_sledge_speed,width=cfg.BTN_WIDTH-2).grid(row=1,column=5,pady=(10,0))     
+        
+            # Label "Bed Speed"
+        tk.Label(self.lbl_frame_macros,text='Bed Speed[mm/s]:',bg=cfg.lblFrame_Movements_color).grid(row=2,column=2,padx=(10,0), pady=(10,0))
+            # Label output "100mm/s"
+        self.strvar_bed_speed = tk.StringVar()
+        self.strvar_bed_speed.set(str(self.prntr.bed_speed)+'mm/s')
+        self.lbl_bed_speed = tk.Label(self.lbl_frame_macros,textvariable=self.strvar_bed_speed,bg=cfg.lblFrame_Movements_color)
+        self.lbl_bed_speed.grid(row=2,column=3,padx=(10,0),pady=(10,0))
+            # Entry
+        self.bed_speed_entry = tk.Entry(self.lbl_frame_macros,width=cfg.BTN_WIDTH)
+        self.bed_speed_entry.grid(row=2,column=4,pady=(10,0))
+        self.bed_speed_entry.bind('<Return>', self.btn_set_bed_speed )
+            # Apply Button
+        tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_bed_speed,width=cfg.BTN_WIDTH-2).grid(row=2,column=5,pady=(10,0))
+        
+            # Button Smooth Powder
+        self.btn_smooth = tk.Button(self.lbl_frame_macros,text='Smooth powder',width=cfg.BTN_WIDTH,command=self.btn_smooth_powder_fnc,state=tk.DISABLED)
+        self.btn_smooth.grid(row=4,column=1,padx=(10,0),pady=(10,0))
+            # Label "layer thickness"
+        tk.Label(self.lbl_frame_macros,text='Layer Thickness[mm]:',bg=cfg.lblFrame_Movements_color).grid(row=4,column=2,padx=(10,0), pady=(10,0))
+            # Label output "0.002mm"
+        self.strvar_LT = tk.StringVar()
+        self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')
+        self.lbl_layer_thickness = tk.Label(self.lbl_frame_macros,textvariable=self.strvar_LT,bg=cfg.lblFrame_Movements_color)
+        self.lbl_layer_thickness.grid(row=4,column=3,padx=(10,0),pady=(10,0))
+            # Entry
+        self.lt_entry = tk.Entry(self.lbl_frame_macros,width=cfg.BTN_WIDTH)
+        self.lt_entry.grid(row=4,column=4,pady=(10,0))
+        self.lt_entry.bind('<Return>', self.btn_set_layer_thickness )
+            # Apply Button
+        tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_layer_thickness,width=cfg.BTN_WIDTH-2).grid(row=4,column=5,pady=(10,0))
+        
+            # Button Add Layer
+        self.btn_addLayer = tk.Button(self.lbl_frame_macros,text='Add layer',width=cfg.BTN_WIDTH,command=self.btn_apply_powder_fnc,state=tk.DISABLED)
+        self.btn_addLayer.grid(row=5,column=1,padx=(10,0),pady=(10,0))  
+            # Label "layer thickness"
+        tk.Label(self.lbl_frame_macros,text='Layer Thickness[mm]:',bg=cfg.lblFrame_Movements_color).grid(row=5,column=2,padx=(10,0), pady=(10,0))
+            # Label output "0.002mm"
+        self.strvar_LT = tk.StringVar()
+        self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')
+        self.lbl_layer_thickness = tk.Label(self.lbl_frame_macros,textvariable=self.strvar_LT,bg=cfg.lblFrame_Movements_color)
+        self.lbl_layer_thickness.grid(row=5,column=3,padx=(10,0),pady=(10,0))
+            # Entry
+        self.lt_entry = tk.Entry(self.lbl_frame_macros,width=cfg.BTN_WIDTH)
+        self.lt_entry.grid(row=5,column=4,pady=(10,0))
+        self.lt_entry.bind('<Return>', self.btn_set_layer_thickness )
+            # Apply Button
+        tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_layer_thickness,width=cfg.BTN_WIDTH-2).grid(row=5,column=5,pady=(10,0))
+
+        
         # ********************************************************************************************************************************************#
         # Printer properties                                                                                                                          #
         # ********************************************************************************************************************************************#
         
-        # Layer Thickness
-            # Label "layer thickness"
-        tk.Label(self.lbl_frame_properties,text='Layer Thickness:',bg=cfg.lblFrame_PrinterProperties_color).grid(row=1,column=1,padx=(10,0),pady=(10,0))
-            # Label output "0.002mm"
-        self.strvar_LT = tk.StringVar()
-        self.strvar_LT.set(str(self.prntr.layer_thickness)+'mm')
-        self.lbl_layer_thickness = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_LT,bg=cfg.lblFrame_PrinterProperties_color)
-        self.lbl_layer_thickness.grid(row=2,column=1,padx=(10,0),pady=(10,0))
-            # Entry
-        self.lt_entry = tk.Entry(self.lbl_frame_properties,width=cfg.BTN_WIDTH)
-        self.lt_entry.grid(row=3,column=1,pady=(10,0))
-        self.lt_entry.bind('<Return>', self.btn_set_layer_thickness )
-            # Apply Button
-        tk.Button(self.lbl_frame_properties,text='Apply',command=self.btn_set_layer_thickness,width=cfg.BTN_WIDTH-2).grid(row=4,column=1,pady=(10,0))
-        
-        # Bed Speed
-            # Label "Bed Speed"
-        tk.Label(self.lbl_frame_properties,text='Bed Speed:',bg=cfg.lblFrame_PrinterProperties_color).grid(row=1,column=2,padx=(10,0),pady=(10,0))
-            # Label output "100mm/s"
-        self.strvar_bed_speed = tk.StringVar()
-        self.strvar_bed_speed.set(str(self.prntr.bed_speed)+'mm/s')
-        self.lbl_bed_speed = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_bed_speed,bg=cfg.lblFrame_PrinterProperties_color)
-        self.lbl_bed_speed.grid(row=2,column=2,padx=(10,0),pady=(10,0))
-            # Entry
-        self.bed_speed_entry = tk.Entry(self.lbl_frame_properties,width=cfg.BTN_WIDTH)
-        self.bed_speed_entry.grid(row=3,column=2,pady=(10,0))
-        self.bed_speed_entry.bind('<Return>', self.btn_set_bed_speed )
-            # Apply Button
-        tk.Button(self.lbl_frame_properties,text='Apply',command=self.btn_set_bed_speed,width=cfg.BTN_WIDTH-2).grid(row=4,column=2,pady=(10,0))
-         
-        # Sledge Speed
-            # Label "Sledge Speed"
-        tk.Label(self.lbl_frame_properties,text='Sledge Speed:',bg=cfg.lblFrame_PrinterProperties_color).grid(row=1,column=3,padx=(10,0),pady=(10,0))
-            # Label output "100mm/s"
-        self.strvar_sledge_speed = tk.StringVar()
-        self.strvar_sledge_speed.set(str(self.prntr.sledge_speed)+'mm/s')
-        self.lbl_sledge_speed = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_sledge_speed,bg=cfg.lblFrame_PrinterProperties_color)
-        self.lbl_sledge_speed.grid(row=2,column=3,padx=(10,0),pady=(10,0))
-            # Entry
-        self.sledge_speed_entry = tk.Entry(self.lbl_frame_properties,width=cfg.BTN_WIDTH)
-        self.sledge_speed_entry.grid(row=3,column=3,pady=(10,0))
-        self.sledge_speed_entry.bind('<Return>', self.btn_set_sledge_speed )
-            # Apply Button
-        tk.Button(self.lbl_frame_properties,text='Apply',command=self.btn_set_sledge_speed,width=cfg.BTN_WIDTH-2).grid(row=4,column=3,pady=(10,0)) 
-        
+        # Layer Thickness  
+#         tk.Label(self.lbl_frame_properties,text='Layer Thickness:',bg=cfg.lblFrame_PrinterProperties_color).grid(row=1,column=1,padx=(10,0),pady=(10,0))
+                 
         # Positions
-        tk.Label(self.lbl_frame_properties,text='Positions:',bg=cfg.lblFrame_PrinterProperties_color).grid(row=1,column=4,padx=(10,0),pady=(10,0),columnspan=2)
-        tk.Label(self.lbl_frame_properties,text='Powder bed (X) = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=2,column=4,padx=(0,0),pady=(10,0),sticky='E')
-        self.strvar_PowderBedPos = tk.StringVar()
-        self.strvar_PowderBedPos.set(str(self.prntr.powder_bed_position)+'mm')
-        self.lbl_powder_bed_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_PowderBedPos,bg=cfg.lblFrame_PrinterProperties_color)
-        self.lbl_powder_bed_pos.grid(row=2,column=5,padx=(10,0),pady=(10,0),sticky='W')
-        tk.Label(self.lbl_frame_properties,text='Workpiece bed (Y) = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=3,column=4,padx=(0,0),pady=(10,0),sticky='E')
-        self.strvar_WorkpieceBedPos = tk.StringVar()
-        self.strvar_WorkpieceBedPos.set(str(self.prntr.workpiece_bed_position)+'mm')
-        self.lbl_workpiece_bed_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_WorkpieceBedPos,bg=cfg.lblFrame_PrinterProperties_color)
-        self.lbl_workpiece_bed_pos.grid(row=3,column=5,padx=(10,0),pady=(10,0),sticky='W')
-        tk.Label(self.lbl_frame_properties,text='Sledge (Z) = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=4,column=4,padx=(0,0),pady=(10,0),sticky='E')
-        self.strvar_SledgePos = tk.StringVar()
-        self.strvar_SledgePos.set(str(self.prntr.sledge_position)+'mm')
-        self.lbl_sledge_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_SledgePos,bg=cfg.lblFrame_PrinterProperties_color)
-        self.lbl_sledge_pos.grid(row=4,column=5,padx=(10,0),pady=(10,0),sticky='W')
+#         tk.Label(self.lbl_frame_properties,text='Positions:',bg=cfg.lblFrame_PrinterProperties_color).grid(row=1,column=4,padx=(10,0),pady=(10,0),columnspan=2)
+#         tk.Label(self.lbl_frame_properties,text='Powder bed (X) = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=2,column=4,padx=(0,0),pady=(10,0),sticky='E')
+#         self.strvar_PowderBedPos = tk.StringVar()
+#         self.strvar_PowderBedPos.set(str(self.prntr.powder_bed_position)+'mm')
+#         self.lbl_powder_bed_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_PowderBedPos,bg=cfg.lblFrame_PrinterProperties_color)
+#         self.lbl_powder_bed_pos.grid(row=2,column=5,padx=(10,0),pady=(10,0),sticky='W')
+#         tk.Label(self.lbl_frame_properties,text='Workpiece bed (Y) = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=3,column=4,padx=(0,0),pady=(10,0),sticky='E')
+#         self.strvar_WorkpieceBedPos = tk.StringVar()
+#         self.strvar_WorkpieceBedPos.set(str(self.prntr.workpiece_bed_position)+'mm')
+#         self.lbl_workpiece_bed_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_WorkpieceBedPos,bg=cfg.lblFrame_PrinterProperties_color)
+#         self.lbl_workpiece_bed_pos.grid(row=3,column=5,padx=(10,0),pady=(10,0),sticky='W')
+#         tk.Label(self.lbl_frame_properties,text='Sledge (Z) = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=4,column=4,padx=(0,0),pady=(10,0),sticky='E')
+#         self.strvar_SledgePos = tk.StringVar()
+#         self.strvar_SledgePos.set(str(self.prntr.sledge_position)+'mm')
+#         self.lbl_sledge_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_SledgePos,bg=cfg.lblFrame_PrinterProperties_color)
+#         self.lbl_sledge_pos.grid(row=4,column=5,padx=(10,0),pady=(10,0),sticky='W')
 
-        # EndstopStatus
-        self.btn_endstop = tk.Button(self.lbl_frame_properties,text='Endstop status',width=cfg.BTN_WIDTH,command=self.btn_endstops_fnc)
-        self.btn_endstop.grid(row=1,column=6,pady=(10,0))
-        
-        # Macros
-        self.btn_macros = tk.Button(self.lbl_frame_properties,text='Macros',width=cfg.BTN_WIDTH_SMALL,command=self.btn_macros_fnc)
-        self.btn_macros.grid(row=1,column=7,padx=(10,0),pady=(10,0))
-        
-        # Step sizes
-        tk.Label(self.lbl_frame_properties,text='x-steps/mm = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=2,column=6,padx=(0,0),pady=(10,0),sticky='E')
-        self.strvar_xsteps = tk.StringVar()
-        self.strvar_xsteps.set(str(self.prntr.step_size_x))
-        self.lbl_xsteps = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_xsteps,bg=cfg.lblFrame_PrinterProperties_color)
-        self.lbl_xsteps.grid(row=2,column=7,padx=(10,0),pady=(10,0),sticky='W')
-        tk.Label(self.lbl_frame_properties,text='y-steps/mm = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=3,column=6,padx=(0,0),pady=(10,0),sticky='E')
-        self.strvar_ysteps = tk.StringVar()
-        self.strvar_ysteps.set(str(self.prntr.step_size_y))
-        self.lbl_ysteps = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_ysteps,bg=cfg.lblFrame_PrinterProperties_color)
-        self.lbl_ysteps.grid(row=3,column=7,padx=(10,0),pady=(10,0),sticky='W')
-        tk.Label(self.lbl_frame_properties,text='z-steps/mm = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=4,column=6,padx=(0,0),pady=(10,0),sticky='E')
-        self.strvar_zsteps = tk.StringVar()
-        self.strvar_zsteps.set(str(self.prntr.step_size_z))
-        self.lbl_zsteps = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_zsteps,bg=cfg.lblFrame_PrinterProperties_color)
-        self.lbl_zsteps.grid(row=4,column=7,padx=(10,0),pady=(10,0),sticky='W')
-        
-        # ********************************************************************************************************************************************#
-        # Movements                                                                                                                                   #
-        # ********************************************************************************************************************************************#
-            # Buttons Homing
-        self.btn_homing = tk.Button(self.lbl_frame_movements,text='Home all axes',width=cfg.BTN_WIDTH,command=self.btn_homing_fnc)
-        self.btn_homing.grid(row=1,column=1,padx=(10,0),pady=(10,0))
-        self.btn_homing_x = tk.Button(self.lbl_frame_movements,text='Home x-axis',width=cfg.BTN_WIDTH,command=self.btn_homing_x_fnc)
-        self.btn_homing_x.grid(row=1,column=2,padx=(10,0),pady=(10,0))
-        self.btn_homing_y = tk.Button(self.lbl_frame_movements,text='Home y-axis',width=cfg.BTN_WIDTH,command=self.btn_homing_y_fnc)
-        self.btn_homing_y.grid(row=1,column=3,padx=(10,0),pady=(10,0))
-        self.btn_homing_z = tk.Button(self.lbl_frame_movements,text='Home z-axis',width=cfg.BTN_WIDTH,command=self.btn_homing_z_fnc)
-        self.btn_homing_z.grid(row=1,column=4,padx=(10,0),pady=(10,0))
-            # Button Smooth Powder
-        self.btn_smooth = tk.Button(self.lbl_frame_movements,text='Smooth powder',width=cfg.BTN_WIDTH,command=self.btn_smooth_powder_fnc,state=tk.DISABLED)
-        self.btn_smooth.grid(row=2,column=1,padx=(10,0),pady=(10,0))
-            # Button Add Layer
-        self.btn_addLayer = tk.Button(self.lbl_frame_movements,text='Add layer',width=cfg.BTN_WIDTH,command=self.btn_apply_powder_fnc,state=tk.DISABLED)
-        self.btn_addLayer.grid(row=2,column=2,padx=(10,0),pady=(10,0))
-            # Button Move Beds
-        self.btn_moveBeds = tk.Button(self.lbl_frame_movements,text='Move',bg=cfg.moveBeds_color,width=cfg.BTN_WIDTH,command=self.btn_move_beds_fnc)
-        self.btn_moveBeds.grid(row=2,column=3,padx=(10,0),pady=(10,0))
-            # Sledge Position - label, scale
-        tk.Label(self.lbl_frame_movements,text='sledge position:\n[mm]',bg=cfg.lblFrame_Movements_color).grid(row=3,column=1)
-#         self.scale_sledge = tk.Scale(self.lbl_frame_movements,command=self.scale_sledge_fnc ,orient='horizontal', bg=cfg.moveBeds_color,from_=0,to=cfg.SLEDGE_END_POS,length=380)#,variable=self.prntr.sledge_position)#, label='layer thickness')
-        self.scale_sledge = tk.Scale(self.lbl_frame_movements,orient='horizontal', bg=cfg.moveBeds_color,from_=0,to=cfg.SLEDGE_END_POS,length=380)#,variable=self.prntr.sledge_position)#, label='layer thickness')
-        self.scale_sledge.bind("<ButtonRelease-1>", self.scale_sledge_fnc)
-        self.scale_sledge.grid(row=3,column=2,padx=(10,0),pady=(10,10),columnspan=3)
-            # Powder Bed - label, scale
-        tk.Label(self.lbl_frame_movements,text='powder bed\n[mm]',bg=cfg.lblFrame_Movements_color).grid(row=1,column=5,padx=(10,0))
-        self.scale_bed1 = tk.Scale(self.lbl_frame_movements, orient='vertical', bg=cfg.moveBeds_color,from_=125,to=0)
-        self.scale_bed1.bind("<ButtonRelease-1>", self.scale_powder_bed_fnc)
-        self.scale_bed1.grid(row=2,column=5,padx=(10,0),pady=(0,0),rowspan=2)
-            # Workpiece bed - label, scale
-        tk.Label(self.lbl_frame_movements,text='workpiece bed\n[mm]',bg=cfg.lblFrame_Movements_color).grid(row=1,column=6,padx=(10,0))
-        self.scale_bed2 = tk.Scale(self.lbl_frame_movements, orient='vertical', bg=cfg.moveBeds_color,from_=125,to=0)
-        self.scale_bed2.bind("<ButtonRelease-1>", self.scale_workpiece_bed_fnc)
-        self.scale_bed2.grid(row=2,column=6,padx=(10,0),pady=(0,0),rowspan=2)
-            # Button Undo 
-        self.btn_undo = tk.Button(self.lbl_frame_movements,text='Undo',bg=cfg.moveBeds_color,width=cfg.BTN_WIDTH,command=self.btn_undo_fnc)
-        self.btn_undo.grid(row=2,column=4,padx=(10,0),pady=(10,0))
-        
         # ********************************************************************************************************************************************#
         # Heating                                                                                                                                     #
         # ********************************************************************************************************************************************#
@@ -403,7 +471,27 @@ class GUI(tk.Frame):
         self.btn_moveBeds.configure(bg=cfg.moveBeds_color)
         self.scale_sledge.configure(bg=cfg.moveBeds_color)
         self.scale_bed1.configure(bg=cfg.moveBeds_color)
-        self.scale_bed2.configure(bg=cfg.moveBeds_color)      
+        self.scale_bed2.configure(bg=cfg.moveBeds_color)
+        
+    def btn_step_sledge_left_fnc(self):
+        send(self.prntr.ser,GC_Move_Relativ(0,0,self.prntr.sledge_step))
+        # self.write_gui_output_text('step',False)
+        
+    def btn_step_sledge_right_fnc(self):
+        send(self.prntr.ser,GC_Move_Relativ(0,0,-self.prntr.sledge_step))
+        
+    def btn_set_sledge_step(self, event=None):
+        strval=str(self.sledge_step_entry.get())
+        floatval=float(self.sledge_step_entry.get())
+        max_val = float(cfg.SLEDGE_MAX_POS)-float(self.prntr.sledge_position)
+        if (floatval <= max_val) & (floatval > 0):
+            self.prntr.sledge_step = floatval
+            self.update_strvars()
+            self.sledge_step_entry.delete(0,'end')
+            self.write_gui_output_text('Changed sledge step to '+strval+'mm',False)
+        else:
+            self.sledge_step_entry.delete(0,'end')
+            self.write_gui_output_text('MAXIMUM '+str(max_val)+'mm in this position allowed',False)
         
     def btn_smooth_powder_fnc(self):
         send(self.prntr.ser,GC_Smooth(self.prntr))

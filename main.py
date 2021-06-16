@@ -26,8 +26,10 @@ def main():
     gui_root = tk.Tk()   
     printer = Printer('Sintratec laser printer',ser)
     printer_gui = GUI(printer,master=gui_root)
+    
     # Use default Values from config (not from Arduino)
     send(ser,'G100X'+str(printer.bed_speed)+'Y'+str(printer.bed_speed)+'Z'+str(printer.sledge_speed)+ '\n')
+    send(ser,'G101X'+str(cfg.HOMING_SPEED_BED)+'Y'+str(cfg.HOMING_SPEED_BED)+'Z'+str(cfg.HOMING_SPEED_SLEDGE)+ '\n')
     
     msg_homed_shown = False
     while True:
@@ -48,8 +50,9 @@ def main():
                 pin_state_input = GPIO.input(cfg.pin_laser_input)
 	        # RTC Digital Output Pin 15 is set to High equals pin_input = 1
                 if (pin_state_input==0):
-                    
-                    hed:
+                    sleep(0.5)
+                    printer_gui.write_gui_output_text('Signal from Laser received',False)
+                    if printer.homed and printer.smoothed:
                         if printer.ready:
                             if not printer.ready_to_send_signal_back:
                                 printer_gui.write_gui_output_text('Adding layer...',False)

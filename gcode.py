@@ -3,6 +3,13 @@ import config as cfg
 
 GC_Endstops = 'M119\n'
 
+def GC_Move_Relativ(x,y,z):
+    return 'G91\n'\
+       'G0'\
+       ' X'+str(x)+\
+       ' Y'+str(y)+\
+       ' Z'+str(z)+'\n'
+
 def GC_Move(x,y,z):
     return 'G90\n'\
            'G0'\

@@ -4,7 +4,8 @@
 # ********************************************************
 
 # Movements
-# POWDER_BED_MAX_HEIGHT = 125  # [mm]
+BED_MAX_POS = 140            # [mm]
+SLEDGE_MAX_POS = 274         # [mm]
 SLEDGE_END_POS = 273         # [mm] Hit Endstop at 275
 SLEDGE_MID_POS = 118         # [mm]
 STEP_SIZE_X = 1600           # [mm/s]
@@ -12,8 +13,14 @@ STEP_SIZE_Y = 1600           # [mm/s]
 STEP_SIZE_Z = 32             # [mm/s]
 BED_SPEED_SLOW = 2           # [mm/s]
 BED_SPEED_FAST = 10          # [mm/s]
-SLEDGE_SPEED_SLOW  = 20     # [mm/s]
-SLEDGE_SPEED_FAST  = 120     # [mm/s] 
+SLEDGE_SPEED_SLOW  = 20      # [mm/s]
+SLEDGE_SPEED_FAST  = 120     # [mm/s]
+HOMING_SPEED_BED = 5         # [mm/s]
+HOMING_SPEED_SLEDGE = 20     # [mm/s]
+
+SLEDGE_STEP = 10.0             # [mm]
+BED_X_STEP = 5               # [mm]
+BED_Y_STEP = 5               # [mm]
 
 # Printer properties
 LAYER_THICKNESS = 1       # [mm] default 0.05
@@ -33,9 +40,11 @@ GUI_WIDTH = 1275
 GUI_HEIGHT = 990
 GUI_POS_X = 1 # Position der Gui von linkerer unterer Bildschirmecke aus
 GUI_POS_Y = 1 # Position der Gui von linkerer unterer Bildschirmecke aus
+pad_x = 10
+pad_y = 10
 
 # GUI colors
-lblFrame_PrinterProperties_color = 'gray'
+lblFrame_First_color = 'gray'
 lblFrame_Movements_color = 'gray70'
 lblFrame_Heating_color = 'coral1'
 lblFrame_Input_color = 'white'

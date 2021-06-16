@@ -15,6 +15,9 @@ class Printer:
         self.step_size_z = cfg.STEP_SIZE_Z
         self.bed_speed = cfg.BED_SPEED_SLOW
         self.sledge_speed = cfg.SLEDGE_SPEED_SLOW
+        self.sledge_step = cfg.SLEDGE_STEP
+        self.bed_x_step = cfg.BED_X_STEP
+        self.bed_y_step = cfg.BED_Y_STEP
         self.powder_bed_position = 10 #X nur für Initialisierung der Anzeige. Dies wird von den "wahren" Werten vom Arduino überschrieben
         self.workpiece_bed_position = 110 #Y nur für Initialisierung der Anzeige. Dies wird von den "wahren" Werten vom Arduino überschrieben
         self.sledge_position = 0 #Z nur für Initialisierung der Anzeige. Dies wird von den "wahren" Werten vom Arduino überschrieben
