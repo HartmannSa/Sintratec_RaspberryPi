@@ -8,8 +8,9 @@ class Printer:
         self.x_homed = False # default False
         self.y_homed = False # default False
         self.z_homed = False # default False
-        self.smoothed = False # default False
+        #self.smoothed = False # default False
         self.layer_thickness = cfg.LAYER_THICKNESS
+        self.layer_thickness_smoothing = cfg.LAYER_SMOOTHING_THICKNESS
         self.step_size_x = cfg.STEP_SIZE_X
         self.step_size_y = cfg.STEP_SIZE_Y
         self.step_size_z = cfg.STEP_SIZE_Z

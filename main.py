@@ -27,8 +27,9 @@ def main():
     printer = Printer('Sintratec laser printer',ser)
     printer_gui = GUI(printer,master=gui_root)
     
-    # Use default Values from config (not from Arduino)
-    send(ser,'G100X'+str(printer.bed_speed)+'Y'+str(printer.bed_speed)+'Z'+str(printer.sledge_speed)+ '\n')
+    # Use default Values from Pi-config.py (not from Arduino)
+    send(ser,'M92X' +str(cfg.STEP_SIZE_X)+'Y'+str(cfg.STEP_SIZE_Y)+'Z'+str(cfg.STEP_SIZE_Z)+ '\n')
+    send(ser,'G100X'+str(cfg.BED_SPEED_SLOW)+'Y'+str(cfg.BED_SPEED_SLOW)+'Z'+str(cfg.SLEDGE_SPEED_SLOW)+ '\n')
     send(ser,'G101X'+str(cfg.HOMING_SPEED_BED)+'Y'+str(cfg.HOMING_SPEED_BED)+'Z'+str(cfg.HOMING_SPEED_SLEDGE)+ '\n')
     
     msg_homed_shown = False
@@ -42,7 +43,7 @@ def main():
                         printer_gui.showInfoAfterHomed()
                         msg_homed_shown = True
                     printer_gui.btn_enable("btn_smooth",True)                    
-                if (printer.homed and printer.smoothed):
+                #if (printer.homed and printer.smoothed):
                     printer_gui.btn_enable("btn_addLayer",True)
                     printer_gui.btn_enable("btn_start",True)
 
@@ -52,7 +53,7 @@ def main():
                 if (pin_state_input==0):
                     sleep(0.5)
                     printer_gui.write_gui_output_text('Signal from Laser received',False)
-                    if printer.homed and printer.smoothed:
+                    if printer.homed: # and printer.smoothed:
                         if printer.ready:
                             if not printer.ready_to_send_signal_back:
                                 printer_gui.write_gui_output_text('Adding layer...',False)
@@ -63,7 +64,7 @@ def main():
                         else:
                             printer_gui.write_gui_output_text('Signal from Laser ignored: Printing process was not started yet or is paused!',False)
                     else:
-                        printer_gui.write_gui_output_text('Layer was not added: Printer is not homed or powder is not smoothed!',False)
+                        printer_gui.write_gui_output_text('Layer was not added: Printer is not homed!',False)
 
                 printer_gui.readout()       
                 printer_gui.update_idletasks()

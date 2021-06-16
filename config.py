@@ -8,25 +8,32 @@ BED_MAX_POS = 140            # [mm]
 SLEDGE_MAX_POS = 274         # [mm]
 SLEDGE_END_POS = 273         # [mm] Hit Endstop at 275
 SLEDGE_MID_POS = 118         # [mm]
-STEP_SIZE_X = 1600           # [mm/s]
-STEP_SIZE_Y = 1600           # [mm/s]
-STEP_SIZE_Z = 32             # [mm/s]
+SLEDGE_START_POS = 1         # [mm] Hit Endstop at 0
+STEP_SIZE_X = 1612.5         # [mm/s]
+STEP_SIZE_Y = 1612.5         # [mm/s]
+STEP_SIZE_Z = 33             # [mm/s]
+
+BED_SPEED_MAX = 40           # [mm/s]
+BED_SPEED_MIN = 0.5           # [mm/s]
 BED_SPEED_SLOW = 2           # [mm/s]
-BED_SPEED_FAST = 10          # [mm/s]
-SLEDGE_SPEED_SLOW  = 20      # [mm/s]
-SLEDGE_SPEED_FAST  = 120     # [mm/s]
+BED_SPEED_FAST = 8          # [mm/s]
+SLEDGE_SPEED_MAX   = 250     # [mm/s]
+SLEDGE_SPEED_MIN   = 1       # [mm/s]
+SLEDGE_SPEED_SLOW  = 70      # [mm/s]
+SLEDGE_SPEED_FAST  = 170     # [mm/s]
+
 HOMING_SPEED_BED = 5         # [mm/s]
 HOMING_SPEED_SLEDGE = 20     # [mm/s]
 
-SLEDGE_STEP = 10.0             # [mm]
+SLEDGE_STEP = 10.0           # [mm]
 BED_X_STEP = 5               # [mm]
 BED_Y_STEP = 5               # [mm]
 
 # Printer properties
-LAYER_THICKNESS = 1       # [mm] default 0.05
-LAYER_THICKNESS_MAX = 10     # [mm]
+LAYER_THICKNESS = 1           # [mm] default 0.05
+LAYER_THICKNESS_MAX = 10      # [mm]
 LAYER_SMOOTHING_THICKNESS = 5 # [mm]
-# POWDER_FILL_HEIGHT = 100      # [mm]
+# POWDER_FILL_HEIGHT = 100    # [mm]
 
 # Communication
 # VERBOSE = True

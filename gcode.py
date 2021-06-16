@@ -59,30 +59,30 @@ def GC_Home_Z(printer):
 
 def GC_Smooth (printer):
     return 'M814 G90'\
-           '|' + GC_setSpeed(-1,cfg.SLEDGE_SPEED_SLOW)+\
-           '|G0 Z0'\
+           '|' + GC_setSpeed(-1,cfg.SLEDGE_SPEED_FAST)+\
+           '|G0 Z' + str(cfg.SLEDGE_START_POS)+\
            '|G91'+\
            '|'+GC_setSpeed(cfg.BED_SPEED_FAST,-1)+\
-           '|G0 X'+str(cfg.LAYER_SMOOTHING_THICKNESS)+' Y'+str(cfg.LAYER_SMOOTHING_THICKNESS)+\
+           '|G0 X'+str(printer.layer_thickness_smoothing)+' Y'+str(printer.layer_thickness_smoothing)+\
            '|' + GC_setSpeed(-1,cfg.SLEDGE_SPEED_SLOW)+\
-           '|G0 Z'+str(cfg.SLEDGE_END_POS)+\
+           '|G0 Z'+str(cfg.SLEDGE_END_POS - cfg.SLEDGE_START_POS)+\
            '|' + GC_setSpeed(cfg.BED_SPEED_SLOW,-1)+\
            '|G0 X'+str(-printer.layer_thickness)+' Y'+str(-printer.layer_thickness)+\
            '|' + GC_setSpeed(-1,cfg.SLEDGE_SPEED_FAST)+\
-           '|G0 Z'+str(-(cfg.SLEDGE_END_POS-cfg.SLEDGE_MID_POS))+\
+           '|G0 Z'+str(-cfg.SLEDGE_END_POS + cfg.SLEDGE_START_POS)+\
            '|' + GC_setSpeed(cfg.BED_SPEED_SLOW,-1)+\
-           '|G0 Y'+str(printer.layer_thickness)+'\n'\
+           '|G0 X'+str(printer.layer_thickness)+' Y'+str(printer.layer_thickness)+'\n'\
            'M814\n'
 
 def GC_Layer (printer):
     return 'M815 G90'\
-           '|' + GC_setSpeed(-1,cfg.SLEDGE_SPEED_SLOW)+\
-           '|G0 Z0'\
+           '|' + GC_setSpeed(-1,cfg.SLEDGE_SPEED_FAST)+\
+           '|G0 Z'+ str(cfg.SLEDGE_START_POS)+\
            '|G91'\
            '|' + GC_setSpeed(cfg.BED_SPEED_SLOW,-1)+\
            '|G0 X'+str(2*printer.layer_thickness)+' Y'+str(-printer.layer_thickness)+\
            '|' + GC_setSpeed(-1,cfg.SLEDGE_SPEED_SLOW)+\
-           '|G0 Z'+str(cfg.SLEDGE_END_POS)+\
+           '|G0 Z'+str(cfg.SLEDGE_END_POS - cfg.SLEDGE_START_POS)+\
            '|G0 X'+str(-printer.layer_thickness)+' Y'+str(-printer.layer_thickness)+\
            '|' + GC_setSpeed(-1,cfg.SLEDGE_SPEED_FAST)+\
            '|G0 Z'+str(-(cfg.SLEDGE_END_POS-cfg.SLEDGE_MID_POS))+\
