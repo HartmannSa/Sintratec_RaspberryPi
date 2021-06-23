@@ -36,8 +36,10 @@ LAYER_SMOOTHING_THICKNESS = 5 # [mm]
 # POWDER_FILL_HEIGHT = 100    # [mm]
 
 # Communication
-# VERBOSE = True
+# VERBOSE = True 
 BAUDRATE = 250000
+
+MODE_SECURE = True
 
 # GUI
 BTN_WIDTH = 10 # default Button width

@@ -5,6 +5,7 @@ from gcode import *
 from time import sleep
 from functions import *
 from tkinter import messagebox
+#from PIL import ImageTK, Image
 
 class GUI(tk.Frame):
     def __init__(self,printer,master=None):
@@ -41,9 +42,9 @@ class GUI(tk.Frame):
         self.strvar_sledge_step.set(str(self.prntr.sledge_step)+' mm')
         self.strvar_bed_x_step.set(str(self.prntr.bed_x_step)+' mm')
         self.strvar_bed_y_step.set(str(self.prntr.bed_y_step)+' mm')
-#         self.strvar_SledgePos.set(str(self.prntr.sledge_position)+'mm')
-#         self.strvar_PowderBedPos.set(str(self.prntr.powder_bed_position)+'mm')
-#         self.strvar_WorkpieceBedPos.set(str(self.prntr.workpiece_bed_position)+'mm')
+        #self.strvar_mode_secure.set(str(self.prntr.mode_secure))
+        self.update_labels()
+        #
         self.strvar_bed_speed.set(str(self.prntr.bed_speed))
         self.strvar_sledge_speed.set(str(self.prntr.sledge_speed))
         self.strvar_xsteps.set(str(self.prntr.step_size_x))
@@ -52,6 +53,7 @@ class GUI(tk.Frame):
         self.scale_sledge.set(self.prntr.sledge_position)
         self.scale_bed1.set(self.prntr.powder_bed_position)
         self.scale_bed2.set(self.prntr.workpiece_bed_position)
+        
  
     def process_dataline(self, line):
         # line enhält Daten im folgenden Format:
@@ -66,6 +68,7 @@ class GUI(tk.Frame):
             self.prntr.step_size_z = data[5]            # step z
             self.prntr.bed_speed = data[6]              # speed x
             self.prntr.sledge_speed = data[8]           # speed z
+            self.prntr.mode_secure = data[9]          # Mode Secure
             self.update_strvars()
         except Exception:
             self.write_gui_output_text('Failed to process dataline: ' + str(line),False)
@@ -257,72 +260,86 @@ class GUI(tk.Frame):
         # ********************************************************************************************************************************************#
         # Macros                                                                                                                          #
         # ********************************************************************************************************************************************#
+            # Mode Secure
+        tk.Label(self.lbl_frame_macros,text='Secure Mode: ',bg=cfg.lblFrame_Movements_color).grid(row=0,column=2, pady=(10,0))
+        self.strvar_mode_secure = tk.StringVar()
+        if (self.prntr.mode_secure):
+            self.strvar_mode_secure.set('on')
+        else:
+            self.strvar_mode_secure.set('off')
+        #self.strvar_mode_secure.set(str(self.prntr.mode_secure))
+        self.lbl_mode_secure = tk.Label(self.lbl_frame_macros,textvariable=self.strvar_mode_secure,bg=cfg.lblFrame_Movements_color)
+        self.lbl_mode_secure.grid(row=0,column=3,padx=(10,0),pady=(10,0))
+        self.btn_mode = tk.Button(self.lbl_frame_macros, text = 'Turn off', command=self.btn_switch_on_off, width=cfg.BTN_WIDTH-2)
+        self.btn_mode.grid(row=0,column=5,pady=(10,0))     
+            
             # Leerzeile
-        tk.Label(self.lbl_frame_macros,bg=cfg.lblFrame_Movements_color).grid(row=0,column=1, pady=(10,0))
+        tk.Label(self.lbl_frame_macros,bg=cfg.lblFrame_Movements_color).grid(row=1,column=1, pady=(10,0))
+            
             # Label "Sledge Speed"
-        tk.Label(self.lbl_frame_macros,text='Sledge Speed [mm/s]:',bg=cfg.lblFrame_Movements_color).grid(row=1,column=2,padx=(10,0), pady=(10,0))
+        tk.Label(self.lbl_frame_macros,text='Sledge Speed [mm/s]:',bg=cfg.lblFrame_Movements_color).grid(row=2,column=2,padx=(10,0), pady=(10,0))
             # Label output "100mm/s"
         self.strvar_sledge_speed = tk.StringVar()
         self.strvar_sledge_speed.set(str(self.prntr.sledge_speed))
         self.lbl_sledge_speed = tk.Label(self.lbl_frame_macros,textvariable=self.strvar_sledge_speed,bg=cfg.lblFrame_Movements_color)
-        self.lbl_sledge_speed.grid(row=1,column=3,padx=(10,0),pady=(10,0))
+        self.lbl_sledge_speed.grid(row=2,column=3,padx=(10,0),pady=(10,0))
             # Entry
         self.sledge_speed_entry = tk.Entry(self.lbl_frame_macros,width=cfg.BTN_WIDTH)
-        self.sledge_speed_entry.grid(row=1,column=4,pady=(10,0))
+        self.sledge_speed_entry.grid(row=2,column=4,pady=(10,0))
         self.sledge_speed_entry.bind('<Return>', self.btn_set_sledge_speed )
             # Apply Button
-        tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_sledge_speed,width=cfg.BTN_WIDTH-2).grid(row=1,column=5,pady=(10,0))     
+        tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_sledge_speed,width=cfg.BTN_WIDTH-2).grid(row=2,column=5,pady=(10,0))     
         
             # Label "Bed Speed"
-        tk.Label(self.lbl_frame_macros,text='Bed Speed [mm/s]:',bg=cfg.lblFrame_Movements_color).grid(row=2,column=2,padx=(10,0), pady=(10,0))
+        tk.Label(self.lbl_frame_macros,text='Bed Speed [mm/s]:',bg=cfg.lblFrame_Movements_color).grid(row=3,column=2,padx=(10,0), pady=(10,0))
             # Label output "100mm/s"
         self.strvar_bed_speed = tk.StringVar()
         self.strvar_bed_speed.set(str(self.prntr.bed_speed))
         self.lbl_bed_speed = tk.Label(self.lbl_frame_macros,textvariable=self.strvar_bed_speed,bg=cfg.lblFrame_Movements_color)
-        self.lbl_bed_speed.grid(row=2,column=3,padx=(10,0),pady=(10,0))
+        self.lbl_bed_speed.grid(row=3,column=3,padx=(10,0),pady=(10,0))
             # Entry
         self.bed_speed_entry = tk.Entry(self.lbl_frame_macros,width=cfg.BTN_WIDTH)
-        self.bed_speed_entry.grid(row=2,column=4,pady=(10,0))
+        self.bed_speed_entry.grid(row=3,column=4,pady=(10,0))
         self.bed_speed_entry.bind('<Return>', self.btn_set_bed_speed )
             # Apply Button
-        tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_bed_speed,width=cfg.BTN_WIDTH-2).grid(row=2,column=5,pady=(10,0))
+        tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_bed_speed,width=cfg.BTN_WIDTH-2).grid(row=3,column=5,pady=(10,0))
         
             # Leerzeile
-        tk.Label(self.lbl_frame_macros,bg=cfg.lblFrame_Movements_color).grid(row=3,column=1, pady=(10,0))
+        tk.Label(self.lbl_frame_macros,bg=cfg.lblFrame_Movements_color).grid(row=4,column=1, pady=(10,0))
   
             # Button Smooth Powder
         self.btn_smooth = tk.Button(self.lbl_frame_macros,text='Smooth powder',width=cfg.BTN_WIDTH,command=self.btn_smooth_powder_fnc,state=tk.DISABLED)
-        self.btn_smooth.grid(row=4,column=1,padx=(10,0),pady=(10,0))
+        self.btn_smooth.grid(row=5,column=1,padx=(10,0),pady=(10,0))
             # Label "layer thickness"
-        tk.Label(self.lbl_frame_macros,text='Layer Thickness [mm]:',bg=cfg.lblFrame_Movements_color).grid(row=4,column=2,padx=(10,0), pady=(10,0))
+        tk.Label(self.lbl_frame_macros,text='Layer Thickness [mm]:',bg=cfg.lblFrame_Movements_color).grid(row=5,column=2,padx=(10,0), pady=(10,0))
             # Label output "0.002mm"
         self.strvar_LT_smoothing = tk.StringVar()
         self.strvar_LT_smoothing.set(str(self.prntr.layer_thickness_smoothing))
         self.lbl_layer_thickness_smoothing = tk.Label(self.lbl_frame_macros,textvariable=self.strvar_LT_smoothing,bg=cfg.lblFrame_Movements_color)
-        self.lbl_layer_thickness_smoothing.grid(row=4,column=3,padx=(10,0),pady=(10,0))
+        self.lbl_layer_thickness_smoothing.grid(row=5,column=3,padx=(10,0),pady=(10,0))
             # Entry
         self.lt_smoothing_entry = tk.Entry(self.lbl_frame_macros,width=cfg.BTN_WIDTH)
-        self.lt_smoothing_entry.grid(row=4,column=4,pady=(10,0))
+        self.lt_smoothing_entry.grid(row=5,column=4,pady=(10,0))
         self.lt_smoothing_entry.bind('<Return>', self.btn_set_layer_thickness_smoothing )
             # Apply Button
-        tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_layer_thickness_smoothing, width=cfg.BTN_WIDTH-2).grid(row=4,column=5,pady=(10,0))
+        tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_layer_thickness_smoothing, width=cfg.BTN_WIDTH-2).grid(row=5,column=5,pady=(10,0))
         
             # Button Add Layer
         self.btn_addLayer = tk.Button(self.lbl_frame_macros,text='Add layer',width=cfg.BTN_WIDTH,command=self.btn_apply_powder_fnc,state=tk.DISABLED)
-        self.btn_addLayer.grid(row=5,column=1,padx=(10,0),pady=(10,0))  
+        self.btn_addLayer.grid(row=6,column=1,padx=(10,0),pady=(10,0))  
             # Label "layer thickness"
-        tk.Label(self.lbl_frame_macros,text='Layer Thickness [mm]:',bg=cfg.lblFrame_Movements_color).grid(row=5,column=2,padx=(10,0), pady=(10,0))
+        tk.Label(self.lbl_frame_macros,text='Layer Thickness [mm]:',bg=cfg.lblFrame_Movements_color).grid(row=6,column=2,padx=(10,0), pady=(10,0))
             # Label output "0.002mm"
         self.strvar_LT = tk.StringVar()
         self.strvar_LT.set(str(self.prntr.layer_thickness))
         self.lbl_layer_thickness = tk.Label(self.lbl_frame_macros,textvariable=self.strvar_LT,bg=cfg.lblFrame_Movements_color)
-        self.lbl_layer_thickness.grid(row=5,column=3,padx=(10,0),pady=(10,0))
+        self.lbl_layer_thickness.grid(row=6,column=3,padx=(10,0),pady=(10,0))
             # Entry
         self.lt_entry = tk.Entry(self.lbl_frame_macros,width=cfg.BTN_WIDTH)
-        self.lt_entry.grid(row=5,column=4,pady=(10,0))
+        self.lt_entry.grid(row=6,column=4,pady=(10,0))
         self.lt_entry.bind('<Return>', self.btn_set_layer_thickness )
             # Apply Button
-        tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_layer_thickness,width=cfg.BTN_WIDTH-2).grid(row=5,column=5,pady=(10,0))
+        tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_layer_thickness,width=cfg.BTN_WIDTH-2).grid(row=6,column=5,pady=(10,0))
 
         
         # ********************************************************************************************************************************************#
@@ -592,6 +609,28 @@ class GUI(tk.Frame):
     def btn_apply_powder_fnc(self):
         send(self.prntr.ser,GC_Layer(self.prntr))
         
+    def btn_switch_on_off(self):
+        if (str(self.prntr.mode_secure)==str(1)):
+            #self.lbl_mode_secure.config(bg=cfg.scaleChanged_color)
+            #self.btn_mode.config(text='Turn on')            
+            send(self.prntr.ser,"M121\n")            
+        else:
+            #self.btn_mode.config(text='Turn off')
+            #elf.lbl_mode_secure.config(bg=cfg.lblFrame_Movements_color)
+            send(self.prntr.ser,"M120\n")
+            
+    def update_labels(self):
+        if (str(self.prntr.mode_secure)==str(1)):
+            self.strvar_mode_secure.set('on')
+            self.btn_mode.config(text='Turn off')
+            self.lbl_mode_secure.config(bg=cfg.lblFrame_Movements_color)
+        else:
+            self.strvar_mode_secure.set('off')
+            self.lbl_mode_secure.config(bg=cfg.scaleChanged_color)
+            self.btn_mode.config(text='Turn on')
+            
+            
+                
 # **********************************************************************************************
 #                                                                                              *
 #                                 Input console - functions                                    *
