@@ -40,6 +40,7 @@ LAYER_SMOOTHING_THICKNESS = 5 # [mm]
 BAUDRATE = 250000
 
 MODE_SECURE = True
+MOTOR_STATUS = False
 
 # GUI
 BTN_WIDTH = 10 # default Button width

@@ -4,10 +4,10 @@ class Printer:
     def __init__(self,NAME,ser):
         self.name = NAME
         self.ser = ser
-        self.homed = True # default False
-        self.x_homed = True # default False
-        self.y_homed = True # default False
-        self.z_homed = True # default False
+        self.homed = False # default False
+        self.x_homed = False # default False
+        self.y_homed = False # default False
+        self.z_homed = False # default False
         #self.smoothed = False # default False
         self.layer_thickness = cfg.LAYER_THICKNESS
         self.layer_thickness_smoothing = cfg.LAYER_SMOOTHING_THICKNESS
@@ -25,3 +25,4 @@ class Printer:
         self.ready = False # default FALSE
         self.ready_to_send_signal_back = False
         self.mode_secure = cfg.MODE_SECURE
+        self.motor_status = cfg.MOTOR_STATUS

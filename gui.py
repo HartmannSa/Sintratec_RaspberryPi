@@ -44,7 +44,6 @@ class GUI(tk.Frame):
         self.strvar_bed_y_step.set(str(self.prntr.bed_y_step)+' mm')
         #self.strvar_mode_secure.set(str(self.prntr.mode_secure))
         self.update_labels()
-        #
         self.strvar_bed_speed.set(str(self.prntr.bed_speed))
         self.strvar_sledge_speed.set(str(self.prntr.sledge_speed))
         self.strvar_xsteps.set(str(self.prntr.step_size_x))
@@ -53,6 +52,32 @@ class GUI(tk.Frame):
         self.scale_sledge.set(self.prntr.sledge_position)
         self.scale_bed1.set(self.prntr.powder_bed_position)
         self.scale_bed2.set(self.prntr.workpiece_bed_position)
+        
+    def update_labels(self):
+        # Red Marking for NOT SECURE MODE
+        if (str(self.prntr.mode_secure)==str(1)):
+            self.strvar_mode_secure.set('on')
+            self.btn_mode.config(text='Turn off')
+            self.lbl_mode_secure.config(bg=cfg.lblFrame_Movements_color)
+            self.lbl_frame_movements.config(bg=cfg.lblFrame_Movements_color)
+        else:
+            self.strvar_mode_secure.set('off')
+            self.lbl_mode_secure.config(bg=cfg.scaleChanged_color)
+            self.lbl_frame_movements.config(bg=cfg.scaleChanged_color)
+            self.btn_mode.config(text='Turn on')
+        # Warnings for Homing
+        if (self.prntr.x_homed):
+            self.lbl_warning_x.config(text='')        
+        else:
+            self.lbl_warning_x.config(text='Axis not homed')
+        if (self.prntr.y_homed):
+            self.lbl_warning_y.config(text='')        
+        else:
+            self.lbl_warning_y.config(text='Axis not homed')
+        if (self.prntr.z_homed):
+            self.lbl_warning_z.config(text='')        
+        else:
+            self.lbl_warning_z.config(text='Axis not homed')
         
  
     def process_dataline(self, line):
@@ -68,7 +93,7 @@ class GUI(tk.Frame):
             self.prntr.step_size_z = data[5]            # step z
             self.prntr.bed_speed = data[6]              # speed x
             self.prntr.sledge_speed = data[8]           # speed z
-            self.prntr.mode_secure = data[9]          # Mode Secure
+            self.prntr.mode_secure = data[9]            # Mode Secure
             self.update_strvars()
         except Exception:
             self.write_gui_output_text('Failed to process dataline: ' + str(line),False)
@@ -127,8 +152,7 @@ class GUI(tk.Frame):
         self.lbl_frame_input.pack(fill='both', expand='yes',side=tk.TOP)
         self.lbl_frame_output = tk.LabelFrame(self.master, bg=cfg.lblFrame_Output_color, text = 'Output',height=str((cfg.FRAME_HEIGHT)*2))
         self.lbl_frame_output.pack(fill='both', expand='yes',side=tk.TOP)
-        
-        
+              
         
         # ********************************************************************************************************************************************#
         # General                                                                                                                        #
@@ -140,6 +164,14 @@ class GUI(tk.Frame):
         # Macros
         self.btn_macros = tk.Button(self.lbl_frame_general,text='Macros',width=cfg.BTN_WIDTH,command=self.btn_macros_fnc)
         self.btn_macros.grid(row=1,column=2,padx=(10,0),pady=(10,0), columnspan=2)
+        
+        # Disable Motors
+        self.btn_disable_motors = tk.Button(self.lbl_frame_general,text='Disable Motors',width=cfg.BTN_WIDTH,command=self.btn_disable_motors)
+        self.btn_disable_motors.grid(row=1,column=4,padx=(10,0),pady=(10,0), columnspan=2)
+        
+        # Enable Motors
+        self.btn_enable_motors = tk.Button(self.lbl_frame_general,text='Enable Motors',width=cfg.BTN_WIDTH,command=self.btn_enable_motors)
+        self.btn_enable_motors.grid(row=1,column=6,padx=(10,0),pady=(10,0), columnspan=2)
         
         # Step sizes
         tk.Label(self.lbl_frame_general,text='Stepsizes [steps/mm]:',bg=cfg.lblFrame_First_color).grid(row=2,column=1,padx=(10,0),pady=(10,0))
@@ -206,14 +238,26 @@ class GUI(tk.Frame):
         self.sledge_step_entry.grid(row=2,column=6,pady=(10,0))
         self.sledge_step_entry.bind('<Return>', self.btn_set_sledge_step )
             # Apply Button
-        tk.Button(self.lbl_frame_movements,text='Apply',command=self.btn_set_sledge_step,width=cfg.BTN_WIDTH_SMALL).grid(row=2,column=7,pady=(10,0)) 
+        tk.Button(self.lbl_frame_movements,text='Apply',command=self.btn_set_sledge_step,width=cfg.BTN_WIDTH_SMALL).grid(row=2,column=7,pady=(10,0))
+            
+            # Label Homing Warning
+        self.lbl_warning_z = tk.Label(self.lbl_frame_movements,text='Axis not homed!',fg=cfg.scaleChanged_color,bg=cfg.lblFrame_Movements_color)
+        self.lbl_warning_z.grid(row=3,column=1,padx=(10,0),pady=(10,0), columnspan=2)
             # Sledge scale
         self.scale_sledge = tk.Scale(self.lbl_frame_movements,orient='horizontal', bg=cfg.moveBeds_color,from_=cfg.SLEDGE_MAX_POS,to=0,length=200)#250, variable=self.prntr.sledge_position)#, label='layer thickness')
         self.scale_sledge.bind("<ButtonRelease-1>", self.scale_sledge_fnc)
         self.scale_sledge.grid(row=3,column=3,padx=(10,0),pady=(10,10),columnspan=4)
+        
+#             # Label Homing Warning
+#         self.lbl_warning = tk.Label(self.lbl_frame_movements,text='Axes not homed!',fg=cfg.scaleChanged_color,bg=cfg.lblFrame_Movements_color)
+#         self.lbl_warning.grid(row=3,column=7,padx=(10,0),pady=(10,0))
             
-            # Workpiece bed (Y)- label, scale
+            # Workpiece bed (Y)- label
         tk.Label(self.lbl_frame_movements,text='workpiece bed\n(y) [mm]',bg=cfg.lblFrame_Movements_color).grid(row=4,column=1,padx=(10,0), columnspan=2)
+            # Label Homing Warning
+        self.lbl_warning_y = tk.Label(self.lbl_frame_movements,text='Axis not homed!',fg=cfg.scaleChanged_color,bg=cfg.lblFrame_Movements_color)
+        self.lbl_warning_y.grid(row=5,column=1,padx=(10,0),pady=(10,0), columnspan=2)
+            #  Scale
         self.scale_bed2 = tk.Scale(self.lbl_frame_movements, orient='vertical', bg=cfg.moveBeds_color,from_=cfg.BED_MAX_POS,to=0)
         self.scale_bed2.bind("<ButtonRelease-1>", self.scale_workpiece_bed_fnc)
         self.scale_bed2.grid(row=4,column=3,padx=(10,0),pady=(0,0),rowspan=2, columnspan=2)
@@ -239,6 +283,9 @@ class GUI(tk.Frame):
         self.scale_bed1.bind("<ButtonRelease-1>", self.scale_powder_bed_fnc)
         self.scale_bed1.grid(row=4,column=5,padx=(0,0),pady=(0,0),rowspan=2, columnspan=2)
         tk.Label(self.lbl_frame_movements,text='powder bed\n(x) [mm]',bg=cfg.lblFrame_Movements_color).grid(row=4,column=7,padx=(0,0), sticky='E', columnspan=2)
+            # Label Homing Warning
+        self.lbl_warning_x = tk.Label(self.lbl_frame_movements,text='Axis not homed!',fg=cfg.scaleChanged_color,bg=cfg.lblFrame_Movements_color)
+        self.lbl_warning_x.grid(row=5,column=7,padx=(10,0),pady=(10,0), columnspan=2)
            # Button Steps Powder Bed (x)
         self.btn_bed_x_up = tk.Button(self.lbl_frame_movements,text='^',bg=cfg.moveBeds_color,width=cfg.BTN_WIDTH_SMALL,command=self.btn_step_bed_x_up_fnc)
         self.btn_bed_x_up.grid(row=6,column=5,padx=(10,0),pady=(10,0))
@@ -271,8 +318,8 @@ class GUI(tk.Frame):
         self.lbl_mode_secure = tk.Label(self.lbl_frame_macros,textvariable=self.strvar_mode_secure,bg=cfg.lblFrame_Movements_color)
         self.lbl_mode_secure.grid(row=0,column=3,padx=(10,0),pady=(10,0))
         self.btn_mode = tk.Button(self.lbl_frame_macros, text = 'Turn off', command=self.btn_switch_on_off, width=cfg.BTN_WIDTH-2)
-        self.btn_mode.grid(row=0,column=5,pady=(10,0))     
-            
+        self.btn_mode.grid(row=0,column=5,pady=(10,0))
+                  
             # Leerzeile
         tk.Label(self.lbl_frame_macros,bg=cfg.lblFrame_Movements_color).grid(row=1,column=1, pady=(10,0))
             
@@ -341,31 +388,6 @@ class GUI(tk.Frame):
             # Apply Button
         tk.Button(self.lbl_frame_macros,text='Apply',command=self.btn_set_layer_thickness,width=cfg.BTN_WIDTH-2).grid(row=6,column=5,pady=(10,0))
 
-        
-        # ********************************************************************************************************************************************#
-        # Printer properties                                                                                                                          #
-        # ********************************************************************************************************************************************#
-        
-        # Layer Thickness  
-#         tk.Label(self.lbl_frame_properties,text='Layer Thickness:',bg=cfg.lblFrame_PrinterProperties_color).grid(row=1,column=1,padx=(10,0),pady=(10,0))
-                 
-        # Positions
-#         tk.Label(self.lbl_frame_properties,text='Positions:',bg=cfg.lblFrame_PrinterProperties_color).grid(row=1,column=4,padx=(10,0),pady=(10,0),columnspan=2)
-#         tk.Label(self.lbl_frame_properties,text='Powder bed (X) = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=2,column=4,padx=(0,0),pady=(10,0),sticky='E')
-#         self.strvar_PowderBedPos = tk.StringVar()
-#         self.strvar_PowderBedPos.set(str(self.prntr.powder_bed_position)+'mm')
-#         self.lbl_powder_bed_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_PowderBedPos,bg=cfg.lblFrame_PrinterProperties_color)
-#         self.lbl_powder_bed_pos.grid(row=2,column=5,padx=(10,0),pady=(10,0),sticky='W')
-#         tk.Label(self.lbl_frame_properties,text='Workpiece bed (Y) = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=3,column=4,padx=(0,0),pady=(10,0),sticky='E')
-#         self.strvar_WorkpieceBedPos = tk.StringVar()
-#         self.strvar_WorkpieceBedPos.set(str(self.prntr.workpiece_bed_position)+'mm')
-#         self.lbl_workpiece_bed_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_WorkpieceBedPos,bg=cfg.lblFrame_PrinterProperties_color)
-#         self.lbl_workpiece_bed_pos.grid(row=3,column=5,padx=(10,0),pady=(10,0),sticky='W')
-#         tk.Label(self.lbl_frame_properties,text='Sledge (Z) = ',bg=cfg.lblFrame_PrinterProperties_color).grid(row=4,column=4,padx=(0,0),pady=(10,0),sticky='E')
-#         self.strvar_SledgePos = tk.StringVar()
-#         self.strvar_SledgePos.set(str(self.prntr.sledge_position)+'mm')
-#         self.lbl_sledge_pos = tk.Label(self.lbl_frame_properties,textvariable=self.strvar_SledgePos,bg=cfg.lblFrame_PrinterProperties_color)
-#         self.lbl_sledge_pos.grid(row=4,column=5,padx=(10,0),pady=(10,0),sticky='W')
 
         # ********************************************************************************************************************************************#
         # Heating                                                                                                                                     #
@@ -402,14 +424,14 @@ class GUI(tk.Frame):
         # Start, Pause, Stop Button                                                                                                                   #
         # ********************************************************************************************************************************************#
         # start button:
-        self.btn_start = tk.Button(self.master,text='START',command=self.btn_start_fnc,bg=cfg.startButton_color,state=tk.DISABLED)
+        self.btn_start = tk.Button(self.master,text='START (proceed external signals)',command=self.btn_start_fnc,bg=cfg.startButton_color,state=tk.DISABLED)
         self.btn_start.pack(fill='both', expand='yes',side=tk.LEFT,padx='10',pady='10')
         # pause button:
         self.btn_pause = tk.Button(self.master,text='PAUSE',command=self.btn_pause_fnc,bg=cfg.pauseButton_color)
         self.btn_pause.pack(fill='both', expand='yes',side=tk.LEFT,padx='10',pady='10')      
         # stop button
-        self.btn_stop = tk.Button(self.master,text='STOP',command=self.btn_stop_fnc,bg=cfg.stopButton_color)
-        self.btn_stop.pack(fill='both', expand='yes',side=tk.RIGHT,padx='10',pady='10')
+        #self.btn_stop = tk.Button(self.master,text='STOP',command=self.btn_stop_fnc,bg=cfg.stopButton_color)
+        #self.btn_stop.pack(fill='both', expand='yes',side=tk.RIGHT,padx='10',pady='10')
         
                 
 # **********************************************************************************************
@@ -494,6 +516,12 @@ class GUI(tk.Frame):
 #                                 Movement - functions                                         *
 #                                                                                              *
 # **********************************************************************************************
+    def btn_disable_motors(self):
+        send(self.prntr.ser,'M18\n')
+    
+    def btn_enable_motors(self):
+        send(self.prntr.ser,'M17\n')
+        
     def scale_sledge_fnc(self,var):        
         self.scale_sledge.configure(bg=cfg.scaleChanged_color)
         self.btn_moveBeds.configure(bg=cfg.scaleChanged_color)                 
@@ -611,25 +639,16 @@ class GUI(tk.Frame):
         
     def btn_switch_on_off(self):
         if (str(self.prntr.mode_secure)==str(1)):
-            #self.lbl_mode_secure.config(bg=cfg.scaleChanged_color)
-            #self.btn_mode.config(text='Turn on')            
             send(self.prntr.ser,"M121\n")            
         else:
-            #self.btn_mode.config(text='Turn off')
-            #elf.lbl_mode_secure.config(bg=cfg.lblFrame_Movements_color)
             send(self.prntr.ser,"M120\n")
             
-    def update_labels(self):
-        if (str(self.prntr.mode_secure)==str(1)):
-            self.strvar_mode_secure.set('on')
-            self.btn_mode.config(text='Turn off')
-            self.lbl_mode_secure.config(bg=cfg.lblFrame_Movements_color)
+    def btn_motor_on_off(self):
+        if (str(self.prntr.motor_status)==str(1)):
+            send(self.prntr.ser,"M17\n")            
         else:
-            self.strvar_mode_secure.set('off')
-            self.lbl_mode_secure.config(bg=cfg.scaleChanged_color)
-            self.btn_mode.config(text='Turn on')
-            
-            
+            send(self.prntr.ser,"M18\n")   
+                        
                 
 # **********************************************************************************************
 #                                                                                              *
@@ -659,8 +678,14 @@ class GUI(tk.Frame):
 #                                                                                              *
 # **********************************************************************************************
     def btn_start_fnc(self):
-        self.write_gui_output_text('PRINTING PROCESS STARTED',False)
-        self.prntr.ready = True
+        if self.prntr.ready:
+            self.write_gui_output_text('PROCESS CANCELD! IGNORING EXTERNAL SIGNALS ...',False)
+            self.prntr.ready = False
+            self.btn_start['text'] = 'START (proceed external signals)'
+        else:
+            self.write_gui_output_text('PROCESS STARTED! WAITING FOR EXTERNAL SIGNAL ...',False)
+            self.prntr.ready = True
+            self.btn_start['text'] = 'CANCEL (ignore externel signals)'
         
     def btn_pause_fnc(self):
         send(self.prntr.ser,'pause\n')
@@ -673,9 +698,10 @@ class GUI(tk.Frame):
             self.prntr.ready = False
             self.btn_pause['text'] = 'CONTINUE'
         
-    def btn_stop_fnc(self):
-        self.prntr.ready = False
-        send(self.prntr.ser,'stop\n')
+    #def btn_stop_fnc(self):
+        #self.write_gui_output_text('PROCESS STOPPED! RESTART NEEDED...',False)
+        #self.prntr.ready = False
+        #send(self.prntr.ser,'stop\n')
         
 # **********************************************************************************************
 #                                                                                              *
