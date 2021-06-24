@@ -71,4 +71,5 @@ arduino_msg_color = 'light sea green'
 # as soon as the layer was added:
 time_output_signal = 0.5 #sec
 pin_laser_input = 12 # 
-pin_laser_output = 13 # 
+pin_laser_output = 13 #
+pin_error_output = 19 # 

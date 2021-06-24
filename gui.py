@@ -116,9 +116,14 @@ class GUI(tk.Frame):
                 #self.showInfoAfterSmoothed() 
             if ("macro 5 done" in line) and self.prntr.ready_to_send_signal_back:
                 self.prntr.ready_to_send_signal_back = False
-                GPIO.output(cfg.pin_laser_output,True)
+                GPIO.output(cfg.pin_laser_output,GPIO.HIGH)
                 sleep(cfg.time_output_signal)
-                GPIO.output(cfg.pin_laser_output,False)
+                GPIO.output(cfg.pin_laser_output,GPIO.LOW)
+            if ("error" in line) and self.prntr.ready:                
+                GPIO.output(cfg.pin_error_output,GPIO.HIGH)
+                sleep(cfg.time_output_signal)
+                GPIO.output(cfg.pin_error_output,GPIO.LOW)
+                self.write_gui_output_text('Send Error via GPIO Pin 19',False)
             sleep(0.01)
        
     def keybinding_Esc(self, event):

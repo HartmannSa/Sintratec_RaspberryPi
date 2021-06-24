@@ -20,7 +20,9 @@ def main():
     GPIO.setwarnings(False)
     GPIO.setup(cfg.pin_laser_input,GPIO.IN,pull_up_down=GPIO.PUD_UP) # for receiving
     GPIO.setup(cfg.pin_laser_output,GPIO.OUT) # for sending
+    GPIO.setup(cfg.pin_error_output,GPIO.OUT) # for sending error
     GPIO.output(cfg.pin_laser_output,GPIO.LOW)
+    GPIO.output(cfg.pin_error_output,GPIO.LOW)
 
     # define the printer and the printer GUI properties
     gui_root = tk.Tk()   
