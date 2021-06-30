@@ -1,0 +1,39 @@
+# Datum einstellen 'YYYY-MM-DD'
+sudo date --set '2020-04-19 09:30:00'
+
+###########################################################################################################
+Git
+###########################################################################################################
+# Navigieren in Ordner
+mkdir Sintratec
+cd Sintratec
+
+# Check Status
+git status
+# Check History
+git log
+# (Head/main) Stand der lokalen Kopie
+# (origin/main) Stand des "Servers"
+# Press 'q' to leave History	
+
+# Save current status
+git add config.py	# fügt Änderungen der config.py datei hinzu
+git add --a		# fügt alle Änderungen hinzu
+git commit		# Editor um Commit message zu verfassen
+git commit -m "Commit Message" 		
+	
+
+# Synchronisierug mit Online Repo
+git push origin master #'master' ist der branch name, kann auch "main" heißen
+User: zanderfury
+PW: 
+
+# WEITERE
+# Set up Git username local for a single repo
+git config user.name "zanderfury"			'
+git config user.email christianzander@me.com
+
+# Erstellen eines Repos
+git init
+git clone https://github.com/HartmannSa/Sintratec_RaspberryPi.git
+
